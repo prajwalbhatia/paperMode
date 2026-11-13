@@ -10,7 +10,7 @@ Status: implemented, automated checks passed; physical input and full-screen QA 
 - `npm run test:lock`: after permission is granted, wait five seconds, then block input for at most thirty seconds. Lift the notebook and hold Control + Option + Command + L for two seconds to end early.
 - `.build/native/papermode-helper --lock`: same five-second preparation period, with no session timeout. Reserve this for after the bounded test passes. The thirty-second development limit is not a product session timer.
 
-The shortcut currently uses the physical L key position on an Apple US/ABC keyboard. Other layouts must be tested before claiming support. A held chord can be detected with either side's modifier keys.
+The shortcut uses physical keycode 37. Before enabling input filtering, the helper translates that key in the active input source and requires it to produce L. Layouts with L elsewhere, or without readable layout data, are refused. A layout change or loss of a supported mapping during a session releases input. ABC–India on the development Mac passed the mapping check; other layouts still need physical testing. A held chord can be detected with either side's modifier keys.
 
 ## Results on the development Mac
 
@@ -35,6 +35,10 @@ The shortcut currently uses the physical L key position on an Apple US/ABC keybo
 
 ## Known boundaries
 
-Core Graphics event filtering does not establish control over every macOS gesture or secure system action. Media events are filtered using recognized consumer-key identifiers; hardware power/Touch ID and unrecognized system-defined events pass through. Multi-finger gestures and system shortcuts are explicit feasibility tests, not guaranteed features yet. Any escape that interrupts studying must be investigated before milestone 2 is marked complete.
+Core Graphics event filtering does not establish control over every macOS gesture or secure system action. Auxiliary mouse-button and eject/menu subtypes are suppressed, and media events are filtered using recognized consumer-key identifiers (including contrast and launch-panel keys); hardware power/Touch ID and unrecognized system-defined events pass through. Multi-finger gestures and system shortcuts are explicit feasibility tests, not guaranteed features yet. Any escape that interrupts studying must be investigated before milestone 2 is marked complete.
 
 The helper logs only lifecycle state/reason and diagnostic metadata. Raw keystrokes are neither emitted nor stored. Input filtering, reminder ownership, and display-awake assertion live in the helper. Parent exit, tap failure, lost reminder, session deactivation, and permission loss are designed to end the session. Actual locked-session recovery remains a manual test gate.
+
+## Review fixes
+
+All 105 native assertions passed after adding system-event and layout-policy cases; the three packaging tests and native diagnostic also passed. Tests exercise the policy used by the callback with mouse state masks, media down/up/repeat encodings, eject and menu subtypes, and preserved power/lifecycle/unknown events. They do not synthesize hardware events or prove actual delivery suppression. Physical side buttons, contrast/launch/eject keys, and layout changes remain manual QA cases.

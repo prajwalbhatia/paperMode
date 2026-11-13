@@ -15,6 +15,7 @@ final class LockSession {
     private var deadline: TimeInterval?
     private var preview = false
     private var permissionCheckAt: TimeInterval = 0
+    private var keyboardSourceID: String?
 
     func begin(preview: Bool, testDuration: TimeInterval?) {
         self.preview = preview
@@ -25,6 +26,11 @@ final class LockSession {
             exit(2)
         }
         if !preview {
+            keyboardSourceID = currentKeyboardSourceID()
+            guard UnlockLayoutPolicy.supports(currentUnlockKeyLabel()) else {
+                emit(["event": "error", "reason": "unsupported-keyboard-layout", "message": "Select a keyboard layout with L at the standard U.S. key position before locking."])
+                exit(4)
+            }
             guard let newTap = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap,
                 options: .defaultTap, eventsOfInterest: CGEventMask.max,
                 callback: { _, type, event, context in
@@ -86,15 +92,12 @@ final class LockSession {
         } else if type == .flagsChanged {
             chord.update(modifiersHeld: modifiers, now: ProcessInfo.processInfo.systemUptime)
         }
-        // System-defined events may include hardware power actions. Only swallow
-        // recognized consumer/media keys; never promise power/Touch ID blocking.
         if type.rawValue == 14 {
-            guard let native = NSEvent(cgEvent: event), native.subtype.rawValue == 8 else {
+            guard let native = NSEvent(cgEvent: event) else {
                 return Unmanaged.passUnretained(event)
             }
-            let key = (native.data1 >> 16) & 0xffff
-            let mediaKeys: Set<Int> = [0, 1, 2, 3, 7, 8, 9, 10, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-            return mediaKeys.contains(key) ? nil : Unmanaged.passUnretained(event)
+            return InputPolicy.suppressSystemEvent(subtype: Int(native.subtype.rawValue), data1: native.data1)
+                ? nil : Unmanaged.passUnretained(event)
         }
         return nil
     }
@@ -104,6 +107,9 @@ final class LockSession {
         if getppid() != parentPID { finish("parent-exited"); return }
         if !reminder.isVisible { finish("reminder-unavailable"); return }
         if let deadline, now >= deadline { finish("development-test-ended"); return }
+        if !preview && (currentKeyboardSourceID() != keyboardSourceID || !UnlockLayoutPolicy.supports(currentUnlockKeyLabel())) {
+            finish("keyboard-layout-changed"); return
+        }
         if !preview && chord.isComplete(now: now) { finish("shortcut"); return }
         if let tap, !CGEvent.tapIsEnabled(tap: tap) { finish("event-tap-disabled"); return }
         if !preview && now >= permissionCheckAt {

@@ -8,7 +8,9 @@ if arguments == ["--version"] {
 } else if arguments == ["--diagnose"] {
     emit(["name": "papermode-helper", "protocolVersion": 1, "version": "0.1.0",
           "osVersion": ProcessInfo.processInfo.operatingSystemVersionString,
-          "inputLockImplemented": true, "accessibilityTrusted": AXIsProcessTrusted()])
+          "inputLockImplemented": true, "accessibilityTrusted": AXIsProcessTrusted(),
+          "keyboardSourceID": currentKeyboardSourceID() ?? "unknown",
+          "unlockLayoutSupported": UnlockLayoutPolicy.supports(currentUnlockKeyLabel())])
 } else if arguments == ["--request-permission"] {
     let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
     emit(["accessibilityTrusted": AXIsProcessTrustedWithOptions(options)])
