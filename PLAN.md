@@ -3,7 +3,7 @@
 ## Progress
 
 - Milestone 1 complete: Electron menu bar and diagnostic Swift helper build/run checks passed on Apple Silicon, macOS 27.2.1. See `docs/SETUP.md` for results.
-- Milestone 2 is next: native input filtering, unlock shortcut, and reminder.
+- Milestone 2 native prototype implemented: input filter, shortcut, reminder, and bounded test harness. Automated checks passed; physical input/full-screen QA is pending (see `docs/MILESTONE-2-QA.md`).
 
 ## Goal
 

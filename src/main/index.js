@@ -15,7 +15,7 @@ else {
     tray.setToolTip('PaperMode');
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: 'PaperMode — development', enabled: false },
-      { label: 'Input lock arrives in milestone 2', enabled: false },
+      { label: 'Native lock prototype — app controls next', enabled: false },
       { type: 'separator' },
       { label: 'Check native helper', click: async () => {
         try {

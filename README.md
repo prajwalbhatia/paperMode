@@ -2,7 +2,7 @@
 
 A macOS menu bar utility for watching courses while taking handwritten notes on a notebook resting over your laptop keyboard.
 
-Milestone 1 provides the Electron menu bar shell and a diagnostic Swift helper. Input blocking and the unlock reminder are planned for later milestones. See [PLAN.md](PLAN.md).
+The Electron menu bar shell is ready. Milestone 2 adds a native input-lock prototype and reminder; physical input QA is pending, and Electron lock controls arrive in milestone 3. See [native QA instructions](docs/MILESTONE-2-QA.md). See [PLAN.md](PLAN.md).
 
 ## Development
 

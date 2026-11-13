@@ -17,9 +17,9 @@ Generated native executables and npm caches are under `.build/` and ignored by G
 - `npm run package`: require native ARM64 Node on macOS, rebuild and inspect the helper architecture, then assemble an Apple Silicon development app. x64 Node under Rosetta is rejected before any build starts.
 - `npm test`: run packaging architecture guard regression tests.
 
-The native helper currently supports only `--version` and `--diagnose`. It does not intercept input. The JavaScript process executes the helper with an argument array and a five-second diagnostic timeout. This timeout is for the setup check, not a PaperMode session timer.
+The native helper now also supports explicit permission, preview, and lock commands. See `docs/MILESTONE-2-QA.md` before running a lock test. The diagnostic command never intercepts input. The JavaScript process executes the helper with an argument array and a five-second diagnostic timeout. This timeout is for the setup check, not a PaperMode session timer.
 
-Public signing, notarization, Intel packaging, older macOS validation, and lock functionality are later milestones. A project license has not yet been selected.
+Public signing, notarization, Intel packaging, older macOS validation, and packaged lock validation are later milestones. A project license has not yet been selected.
 
 ## Milestone 1 verification — 2026-11-14
 
