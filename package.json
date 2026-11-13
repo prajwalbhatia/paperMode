@@ -1,0 +1,22 @@
+{
+  "name": "papermode",
+  "productName": "PaperMode",
+  "version": "0.1.0",
+  "description": "A macOS menu bar utility for watching courses while taking paper notes.",
+  "private": true,
+  "main": "src/main/index.js",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "scripts": {
+    "build:native": "node scripts/build-native.js",
+    "start": "npm run build:native && electron_config_cache=.build/electron-cache electron .",
+    "check:native": "npm run build:native && node scripts/check-native.js",
+    "check:app": "npm run build:native && electron_config_cache=.build/electron-cache electron . --smoke-test",
+    "package": "npm run build:native && electron-forge package --platform=darwin --arch=arm64"
+  },
+  "devDependencies": {
+    "electron": "45.3.2",
+    "@electron-forge/cli": "8.0.1"
+  }
+}
