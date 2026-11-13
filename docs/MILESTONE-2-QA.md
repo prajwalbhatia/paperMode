@@ -48,3 +48,9 @@ All 105 native assertions passed after adding system-event and layout-policy cas
 The user reported that the original reminder preview worked correctly over a full-screen Google Chrome course video: readable top-right placement, unchanged brightness, continuous video/audio, and no exit from full screen. This is a user-observed pass for the original reminder in Chrome only.
 
 The reminder was then restyled with a compact dark card, paper icon, lock-status label, separate shortcut keycaps, and a two-second hold instruction. Native compilation/diagnostics passed and a static AppKit render was visually inspected for text fit and spacing. Repeat the Chrome preview with the updated design before proceeding to the bounded lock test. Actual input suppression and recovery remain unverified. Normal sessions still use shortcut unlocking; the ten-second preview and thirty-second lock limit are development test modes only.
+
+## First physical lock attempt
+
+The user enabled Accessibility for Visual Studio Code, then reported that `--test-lock` emitted starting, locked, and immediately unlocked with `event-tap-disabled`. No reminder or input suppression was observed. This test failed; the old reason did not distinguish timeout, user-input disable, or the health check observing a disabled tap.
+
+Startup now finishes reminder/power/observer setup before creating the event tap and avoids the initial disable/re-enable cycle. Layout polling is reduced to twice per second. Failure output distinguishes timeout, user-input disable, and observed disabled state, and records elapsed session milliseconds. Compilation, native diagnostics, 105 native assertions, and three packaging tests passed. A repeat physical test is required to establish whether this fixes the failure; its cause is not yet confirmed.

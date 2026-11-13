@@ -16,6 +16,9 @@ final class LockSession {
     private var preview = false
     private var permissionCheckAt: TimeInterval = 0
     private var keyboardSourceID: String?
+    private var lockedAt: TimeInterval?
+    private var finishing = false
+    private var layoutCheckAt: TimeInterval = 0
 
     func begin(preview: Bool, testDuration: TimeInterval?) {
         self.preview = preview
@@ -31,29 +34,10 @@ final class LockSession {
                 emit(["event": "error", "reason": "unsupported-keyboard-layout", "message": "Select a keyboard layout with L at the standard U.S. key position before locking."])
                 exit(4)
             }
-            guard let newTap = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap,
-                options: .defaultTap, eventsOfInterest: CGEventMask.max,
-                callback: { _, type, event, context in
-                    guard let context else { return Unmanaged.passUnretained(event) }
-                    return Unmanaged<LockSession>.fromOpaque(context).takeUnretainedValue().handle(type, event)
-                }, userInfo: Unmanaged.passUnretained(self).toOpaque()) else {
-                emit(["event": "error", "reason": "event-tap-unavailable"])
-                exit(3)
-            }
-            tap = newTap
-            CGEvent.tapEnable(tap: newTap, enable: false)
-            guard let newSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, newTap, 0) else {
-                CFMachPortInvalidate(newTap)
-                emit(["event": "error", "reason": "event-source-unavailable"])
-                exit(3)
-            }
-            source = newSource
-            CFRunLoopAddSource(CFRunLoopGetMain(), newSource, .commonModes)
+
         }
         reminder.show(preview: preview)
         guard reminder.isVisible else { finish("reminder-unavailable"); return }
-        active = true
-        if let tap { CGEvent.tapEnable(tap: tap, enable: true) }
         activity = ProcessInfo.processInfo.beginActivity(options: [.idleDisplaySleepDisabled, .idleSystemSleepDisabled], reason: "PaperMode course viewing")
         let now = ProcessInfo.processInfo.systemUptime
         deadline = testDuration.map { now + $0 }
@@ -74,13 +58,40 @@ final class LockSession {
         let timer = Timer(timeInterval: 0.05, repeats: true) { [weak self] _ in self?.tick() }
         self.timer = timer
         RunLoop.main.add(timer, forMode: .common)
+        // Complete AppKit, power-assertion and observer setup before creating the
+        // tap. A newly created tap is enabled immediately; expensive setup after
+        // creation can starve its callbacks and trigger the WindowServer timeout.
+        if !preview {
+            guard let newTap = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap,
+                options: .defaultTap, eventsOfInterest: CGEventMask.max,
+                callback: { _, type, event, context in
+                    guard let context else { return Unmanaged.passUnretained(event) }
+                    return Unmanaged<LockSession>.fromOpaque(context).takeUnretainedValue().handle(type, event)
+                }, userInfo: Unmanaged.passUnretained(self).toOpaque()) else {
+                emit(["event": "error", "reason": "event-tap-unavailable"])
+                exit(3)
+            }
+            tap = newTap
+            guard let newSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, newTap, 0) else {
+                CFMachPortInvalidate(newTap)
+                emit(["event": "error", "reason": "event-source-unavailable"])
+                exit(3)
+            }
+            source = newSource
+            CFRunLoopAddSource(CFRunLoopGetMain(), newSource, .commonModes)
+        }
+        active = true
+        lockedAt = ProcessInfo.processInfo.systemUptime
+        if let tap { CGEvent.tapEnable(tap: tap, enable: true) }
         emit(["event": preview ? "preview" : "locked", "testSession": testDuration != nil])
     }
 
     private func handle(_ type: CGEventType, _ event: CGEvent) -> Unmanaged<CGEvent>? {
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
             if let tap { CGEvent.tapEnable(tap: tap, enable: false) }
-            DispatchQueue.main.async { self.finish("event-tap-disabled") }
+            active = false
+            let reason = type == .tapDisabledByTimeout ? "event-tap-timeout" : "event-tap-disabled-by-user-input"
+            DispatchQueue.main.async { self.finish(reason) }
             return Unmanaged.passUnretained(event)
         }
         guard active else { return Unmanaged.passUnretained(event) }
@@ -107,11 +118,14 @@ final class LockSession {
         if getppid() != parentPID { finish("parent-exited"); return }
         if !reminder.isVisible { finish("reminder-unavailable"); return }
         if let deadline, now >= deadline { finish("development-test-ended"); return }
-        if !preview && (currentKeyboardSourceID() != keyboardSourceID || !UnlockLayoutPolicy.supports(currentUnlockKeyLabel())) {
-            finish("keyboard-layout-changed"); return
+        if !preview && now >= layoutCheckAt {
+            layoutCheckAt = now + 0.5
+            if currentKeyboardSourceID() != keyboardSourceID || !UnlockLayoutPolicy.supports(currentUnlockKeyLabel()) {
+                finish("keyboard-layout-changed"); return
+            }
         }
         if !preview && chord.isComplete(now: now) { finish("shortcut"); return }
-        if let tap, !CGEvent.tapIsEnabled(tap: tap) { finish("event-tap-disabled"); return }
+        if let tap, !CGEvent.tapIsEnabled(tap: tap) { finish("event-tap-observed-disabled"); return }
         if !preview && now >= permissionCheckAt {
             permissionCheckAt = now + 1
             if !AXIsProcessTrusted() { finish("permission-revoked") }
@@ -119,6 +133,8 @@ final class LockSession {
     }
 
     func finish(_ reason: String) {
+        guard !finishing else { return }
+        finishing = true
         active = false
         if let tap { CGEvent.tapEnable(tap: tap, enable: false); CFMachPortInvalidate(tap) }
         if let source { CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes) }
@@ -136,7 +152,7 @@ final class LockSession {
         observers.removeAll()
         signals.forEach { $0.cancel() }
         signals.removeAll()
-        emit(["event": "unlocked", "reason": reason])
+        emit(["event": "unlocked", "reason": reason, "elapsedMilliseconds": lockedAt.map { Int((ProcessInfo.processInfo.systemUptime - $0) * 1000) } ?? 0])
         NSApp.terminate(nil)
     }
 }
