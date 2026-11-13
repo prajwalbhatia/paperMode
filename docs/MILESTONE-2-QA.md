@@ -42,3 +42,9 @@ The helper logs only lifecycle state/reason and diagnostic metadata. Raw keystro
 ## Review fixes
 
 All 105 native assertions passed after adding system-event and layout-policy cases; the three packaging tests and native diagnostic also passed. Tests exercise the policy used by the callback with mouse state masks, media down/up/repeat encodings, eject and menu subtypes, and preserved power/lifecycle/unknown events. They do not synthesize hardware events or prove actual delivery suppression. Physical side buttons, contrast/launch/eject keys, and layout changes remain manual QA cases.
+
+## User-guided Chrome preview and UI refinement
+
+The user reported that the original reminder preview worked correctly over a full-screen Google Chrome course video: readable top-right placement, unchanged brightness, continuous video/audio, and no exit from full screen. This is a user-observed pass for the original reminder in Chrome only.
+
+The reminder was then restyled with a compact dark card, paper icon, lock-status label, separate shortcut keycaps, and a two-second hold instruction. Native compilation/diagnostics passed and a static AppKit render was visually inspected for text fit and spacing. Repeat the Chrome preview with the updated design before proceeding to the bounded lock test. Actual input suppression and recovery remain unverified. Normal sessions still use shortcut unlocking; the ten-second preview and thirty-second lock limit are development test modes only.
