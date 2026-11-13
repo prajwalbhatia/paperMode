@@ -1,6 +1,6 @@
 # Local setup
 
-Use Node.js 22; `.nvmrc` records this version family. Dependencies are pinned in `package.json` and `package-lock.json`. Use `npm ci` for subsequent clean installs.
+Use Node.js >=22.13.0 and <23, matching Forge’s minimum requirement. `.nvmrc` pins the tested version 22.22.2. Dependencies are pinned in `package.json` and `package-lock.json`. Use `npm ci` for subsequent clean installs.
 
 Verify the native tools with `xcrun swift --version` and `xcrun --show-sdk-path`. PaperMode invokes the selected toolchain through `xcrun`; it does not replace developer tools or change the system's selected developer directory.
 
@@ -14,7 +14,8 @@ Generated native executables and npm caches are under `.build/` and ignored by G
 - `npm run check:native`: build, execute, and validate the helper's JSON response.
 - `npm start`: build the helper and launch the development menu bar app.
 - `npm run check:app`: create a menu bar item, execute the helper, report the result, then quit.
-- `npm run package`: assemble an Apple Silicon development app with the helper bundled as a resource.
+- `npm run package`: require native ARM64 Node on macOS, rebuild and inspect the helper architecture, then assemble an Apple Silicon development app. x64 Node under Rosetta is rejected before any build starts.
+- `npm test`: run packaging architecture guard regression tests.
 
 The native helper currently supports only `--version` and `--diagnose`. It does not intercept input. The JavaScript process executes the helper with an argument array and a five-second diagnostic timeout. This timeout is for the setup check, not a PaperMode session timer.
 

@@ -6,14 +6,15 @@
   "private": true,
   "main": "src/main/index.js",
   "engines": {
-    "node": ">=22 <23"
+    "node": ">=22.13.0 <23"
   },
   "scripts": {
     "build:native": "node scripts/build-native.js",
     "start": "npm run build:native && electron_config_cache=.build/electron-cache electron .",
     "check:native": "npm run build:native && node scripts/check-native.js",
     "check:app": "npm run build:native && electron_config_cache=.build/electron-cache electron . --smoke-test",
-    "package": "npm run build:native && electron-forge package --platform=darwin --arch=arm64"
+    "package": "node scripts/package.js",
+    "test": "node --test tests/*.test.js"
   },
   "devDependencies": {
     "electron": "45.3.2",

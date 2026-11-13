@@ -6,7 +6,7 @@ Milestone 1 provides the Electron menu bar shell and a diagnostic Swift helper. 
 
 ## Development
 
-Requirements: macOS, Node.js 22 (tested with 22.22.2), npm, and a working Xcode or Command Line Tools installation with Swift. The deployment target is macOS 13; currently tested only on this Apple Silicon Mac running macOS 27.2.1.
+Requirements: macOS, Node.js 22.13.0 or newer within Node 22 (tested and pinned in `.nvmrc` to 22.22.2), npm, and a working Xcode or Command Line Tools installation with Swift. The deployment target is macOS 13; currently tested only on this Apple Silicon Mac running macOS 27.2.1.
 
 ```sh
 npm ci
@@ -21,6 +21,6 @@ npm run check:app
 npm run package
 ```
 
-`check:app` creates the actual menu bar item, checks the native helper, prints the result, and exits. Quit a running development instance before running this check. `package` builds an Apple Silicon app in `out/`; it is a local development artifact, not a signed/notarized public release.
+`check:app` creates the actual menu bar item, checks the native helper, prints the result, and exits. Quit a running development instance before running this check. `package` requires native ARM64 Node.js on macOS, verifies the helper architecture, and builds an Apple Silicon app in `out/`; it is a local development artifact, not a signed/notarized public release.
 
 See [docs/SETUP.md](docs/SETUP.md) for build details and troubleshooting.
