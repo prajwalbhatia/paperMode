@@ -48,6 +48,14 @@ final class Reminder {
 
 /// A compact reminder card; only this rectangle is painted over the course.
 final class ReminderCard: NSView {
+    private static let brandIcon: NSImage? = {
+        // The build and packager place this beside the standalone helper, so
+        // artwork lookup does not depend on the launcher's working directory.
+        let executable = URL(fileURLWithPath: CommandLine.arguments[0]).resolvingSymlinksInPath()
+        return NSImage(contentsOf: executable.deletingLastPathComponent().appendingPathComponent("PaperMode.png"))
+            ?? NSImage(systemSymbolName: "lock.fill", accessibilityDescription: nil)
+    }()
+
     private let hint = NSTextField(labelWithString: "")
     private let preparation = NSTextField(labelWithString: "")
     private let progressTrack = NSView()
@@ -65,11 +73,11 @@ final class ReminderCard: NSView {
         layer?.borderColor = NSColor.white.withAlphaComponent(0.15).cgColor
 
         let accent = NSColor(srgbRed: 0.96, green: 0.78, blue: 0.43, alpha: 1)
-        let icon = NSImageView(frame: NSRect(x: 16, y: 80, width: 20, height: 20))
-        icon.image = NSImage(systemSymbolName: "doc.text.fill", accessibilityDescription: nil)
-        icon.contentTintColor = accent
+        let icon = NSImageView(frame: NSRect(x: 14, y: 76, width: 28, height: 28))
+        icon.image = Self.brandIcon
+        icon.imageScaling = .scaleProportionallyUpOrDown
         addSubview(icon)
-        label("PaperMode", frame: NSRect(x: 44, y: 80, width: 110, height: 20), size: 14, weight: .semibold, color: .white)
+        label("PaperMode", frame: NSRect(x: 50, y: 80, width: 110, height: 20), size: 14, weight: .semibold, color: .white)
         let status = preparingSeconds != nil ? "STARTING" : (preview ? "PREVIEW" : "LOCKED")
         label(status, frame: NSRect(x: width - 94, y: 83, width: 78, height: 16), size: 10, weight: .semibold, color: accent, alignment: .right)
 

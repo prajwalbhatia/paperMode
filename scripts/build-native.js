@@ -1,4 +1,4 @@
-const { mkdirSync } = require('node:fs');
+const { mkdirSync, copyFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { spawnSync } = require('node:child_process');
 const root = join(__dirname, '..');
@@ -14,4 +14,5 @@ const result = spawnSync('xcrun', [
   ...['IPCServer.swift', 'PermissionProbe.swift', 'InputPolicy.swift', 'KeyboardLayout.swift', 'UnlockChord.swift', 'Reminder.swift', 'LockSession.swift', 'main.swift'].map(file => join(root, 'native/PaperMode', file)), '-o', join(output, 'papermode-helper')
 ], { stdio: 'inherit' });
 if (result.error) throw result.error;
+if (result.status === 0) copyFileSync(join(root, 'assets/PaperMode.png'), join(output, 'PaperMode.png'));
 process.exit(result.status ?? 1);
