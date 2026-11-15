@@ -29,7 +29,10 @@ class SessionController extends EventEmitter {
       const report = await this.inspect(this.path);
       if (generation === this.generation && !this.disposed) this.applyReport(report);
     } catch {
-      if (generation === this.generation && !this.disposed) this.update('error', 'helper-check-failed');
+      if (generation === this.generation && !this.disposed) {
+        this.report = null;
+        this.update('error', 'helper-check-failed');
+      }
     }
   }
   async requestPermission() {

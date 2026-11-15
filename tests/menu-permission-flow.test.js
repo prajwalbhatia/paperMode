@@ -11,13 +11,16 @@ const { UsageGuide } = require('../src/main/guide');
 test('menu denial, Not now, explicit permission recovery and start under persistent shortcut conflict', async t => {
   const profile = mkdtempSync(join(tmpdir(), 'papermode-menu-'));
   t.after(() => rmSync(profile, {recursive: true, force: true}));
-  let trusted = false, menu, shortcut, choice = 1, guideOptions;
+  let trusted = false, checkFails = false, menu, shortcut, choice = 1, guideOptions;
   let requests = 0, sessions = 0, settingsOpened = 0;
   const flush = () => new Promise(resolve => setImmediate(resolve));
   class Controller extends SessionController {
     constructor(path) {
       super(path, {
-        inspect: async () => ({ accessibilityTrusted: trusted, unlockLayoutSupported: true }),
+        inspect: async () => {
+          if (checkFails) throw new Error('diagnostic failed');
+          return { accessibilityTrusted: trusted, unlockLayoutSupported: true };
+        },
         askPermission: async () => { requests++; trusted = true; },
         createSession: () => {
           sessions++;
@@ -64,6 +67,17 @@ test('menu denial, Not now, explicit permission recovery and start under persist
   assert.ok(item('PaperMode — Ready'));
   assert.ok(item('Retry start shortcut')); // Registration has never succeeded.
   assert.equal(item('Start PaperMode').enabled, true);
+  checkFails = true;
+  await item('Check permission and layout').click(); await flush();
+  assert.ok(item('PaperMode — Needs attention'));
+  assert.equal(item('Start PaperMode').enabled, false);
+  choice = 1;
+  item('How to use PaperMode').click(); await flush();
+  assert.deepEqual(guideOptions.buttons, ['Enable Accessibility…', 'Not now']);
+  assert.equal(requests, 1, 'opening recovery guidance must not request permission');
+  checkFails = false;
+  await item('Check permission and layout').click(); await flush();
+  assert.ok(item('PaperMode — Ready'));
   item('Start PaperMode').click(); await flush();
   assert.equal(sessions, 1);
   assert.ok(item('PaperMode — Locked'));
