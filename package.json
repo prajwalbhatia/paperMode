@@ -9,6 +9,7 @@
     "node": ">=22.13.0 <23"
   },
   "scripts": {
+    "build:icons": "swift -module-cache-path .build/module-cache scripts/build-icons.swift . && iconutil -c icns .build/PaperMode.iconset -o assets/PaperMode.icns",
     "build:native": "node scripts/build-native.js",
     "start": "npm run build:native && electron_config_cache=.build/electron-cache electron .",
     "check:native": "npm run build:native && node scripts/check-native.js",

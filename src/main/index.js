@@ -83,6 +83,7 @@ app.setName('PaperMode');
 if (!app.requestSingleInstanceLock()) app.exit(smokeTest ? 1 : 0);
 else {
   app.whenReady().then(async () => {
+    app.dock?.setIcon?.(nativeImage.createFromPath(join(__dirname, '../../assets/PaperMode.png')));
     app.dock?.hide();
     const icon = nativeImage.createFromPath(join(__dirname, '../../assets/paperTemplate.png'));
     if (icon.isEmpty()) throw new Error('Menu bar icon could not be loaded');

@@ -1,5 +1,5 @@
 const { readFileSync, mkdirSync, writeFileSync, renameSync } = require('node:fs');
-const { dirname } = require('node:path');
+const { dirname, join } = require('node:path');
 
 const instructions = [
   '1. Allow access\nEnable Accessibility for the app macOS identifies. In development this may be Visual Studio Code; the installed app may have a different name. Return to the paper icon in your menu bar and wait for Ready.',
@@ -33,6 +33,7 @@ class UsageGuide {
       const permission = this.needsPermission();
       const { response } = await this.dialog.showMessageBox({
         type: 'info', title: 'PaperMode',
+        icon: join(__dirname, '../../assets/PaperMode.png'),
         message: firstUse ? 'Welcome to PaperMode' : 'Watch your course. Take paper notes.',
         detail: instructions,
         buttons: permission ? ['Enable Accessibility…', 'Not now'] : ['Got it'],

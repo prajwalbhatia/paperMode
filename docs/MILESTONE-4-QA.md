@@ -28,3 +28,7 @@ Status: first-use guidance and recovery messaging implemented. First-time-user a
 6. Validate actual shortcut contention and physical sleep during preparation from the post-merge review fixes.
 
 Packaged permission identity and first-time installation belong to milestone 5. Multiple-display and external-device checks require the relevant hardware; do not infer those passes from single-display testing.
+
+## App artwork update
+
+Added a locally rendered paper-and-lock app icon, an explicit welcome/help dialog icon, and matching monochrome menu bar templates. The deterministic vector source is `scripts/build-icons.swift`; regenerate with `npm run build:icons` on macOS. The PNG was visually inspected. All 32 JavaScript tests passed, and an ARM64 local package built successfully; its Info.plist icon entry resolves to an ICNS file whose SHA-256 matches `assets/PaperMode.icns`. This validates bundled artwork, not packaged input/permission behavior. Actual welcome-dialog and light/dark menu-bar appearance remain manual checks.
