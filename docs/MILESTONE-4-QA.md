@@ -78,3 +78,13 @@ Additional agent verification:
 - All ten targeted guide/menu tests passed. These controlled tests establish application wiring, not real OS permission transitions or actual shortcut contention. Production code was not changed by this QA pass.
 
 Remaining manual gates are fresh denial/grant through the new guide in one real launch context and a reproducible real OS shortcut conflict. Multiple displays, notch/hot-plug behavior, and external devices remain hardware-dependent. Earlier Milestone 3 permission recovery remains supporting evidence only. The idle development app was closed for the attempted separate-context check; no app or lock was left running by this pass.
+
+## Real permission transition repeat — 2026-11-15
+
+- Turned off the existing Visual Studio Code permission through System Settings, then launched the production entry point through VS Code using the existing QA harness (isolated profile, menu logging, Dock visibility). No permission result was mocked.
+- The menu log reported Permission required and disabled Start. The harness requested the real Help guide; while open, its menu controls remained disabled.
+- Computer-use selection of the Electron guide timed out using its full path and app names; the shared bundle identifier was ambiguous. Consequently, Not now and Enable Accessibility were not clicked in this run, and guide-button acceptance remains pending.
+- Restored Visual Studio Code's existing permission through Settings and verified its switch was on. The same running app then reported Ready. Start remained disabled because the guide was still open, as intended. Evidence: ignored `.build/m4-permission-flow.jsonl`.
+- Closed the verified QA process afterward. No lock was activated. All 35 JavaScript tests passed with `npm test`.
+
+This verifies real denied-to-granted detection in one launch context, but does not complete the new guide's end-to-end permission flow. Actual shortcut contention and hardware-dependent checks also remain pending.
