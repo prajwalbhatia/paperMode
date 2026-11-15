@@ -25,6 +25,7 @@ function packageApp() {
     throw new Error(`Expected an ${targetArch} helper, got: ${result.stdout.trim()}`);
   }
   run(join(root, 'node_modules/.bin/electron-forge'), ['package', '--platform=darwin', `--arch=${targetArch}`]);
+  run(process.execPath, [join(__dirname, 'check-package.js')]);
 }
 
 if (require.main === module) {

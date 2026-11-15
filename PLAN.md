@@ -2,6 +2,8 @@
 
 ## Progress
 
+- Milestone 5 started on `milestone-5-local-release` after milestone 4 merged. Added automatic packaged-content verification; fresh ARM64 build and non-locking packaged startup passed. Finder-launched permission identity, installation/replacement, and interactive packaged acceptance remain pending in `docs/MILESTONE-5-QA.md`.
+
 - Milestone 1 complete: Electron menu bar and diagnostic Swift helper build/run checks passed on Apple Silicon, macOS 27.2.1. See `docs/SETUP.md` for results.
 - Milestone 2 merged: native input filtering, deliberate unlock, reminder, and core manual recovery/full-screen QA passed. External devices and multiple displays remain pending (see `docs/MILESTONE-2-QA.md`).
 - Milestone 3 merged, including post-merge review fixes: versioned stdio commands/events, Electron session state, permission controls, start shortcut, and connection cleanup. Automated and real Electron runtime checks passed; core user-reported manual checks and normal-session duration passed; assisted permission revocation and logged normal-session shortcut unlock passed; core development-Mac QA passed, with hardware and release gates deferred (see `docs/MILESTONE-3-QA.md`).

@@ -2,7 +2,7 @@
 
 A macOS menu bar utility for watching courses while taking handwritten notes on a notebook resting over your laptop keyboard.
 
-The Electron menu bar app and native input lock have passed core development-Mac QA. Milestone 4 adds first-use guidance and clearer recovery messages; its visual and first-time-user checks are pending. See [UX QA](docs/MILESTONE-4-QA.md), [app QA results](docs/MILESTONE-3-QA.md), [native QA results](docs/MILESTONE-2-QA.md), and [PLAN.md](PLAN.md).
+The Electron menu bar app and native input lock have passed core development-Mac QA. Milestone 4's first-use guidance, artwork, and recovery messages are merged, with remaining manual checks documented. Milestone 5 is validating the local packaged app. See [packaged QA](docs/MILESTONE-5-QA.md), [UX QA](docs/MILESTONE-4-QA.md), [app QA results](docs/MILESTONE-3-QA.md), [native QA results](docs/MILESTONE-2-QA.md), and [PLAN.md](PLAN.md).
 
 ## Development
 
@@ -23,8 +23,11 @@ For first app-level QA, use `npm run start:test` instead: sessions have a thirty
 ```sh
 npm run check:app
 npm run package
+npm run check:package
 ```
 
 `check:app` creates the actual menu bar item, registers the start shortcut, checks the native helper and permission state, prints the result, and exits without locking input. Quit a running development instance before running this check. `package` requires native ARM64 Node.js on macOS, verifies the helper architecture, and builds an Apple Silicon app in `out/`; it is a local development artifact, not a signed/notarized public release.
 
 See [docs/SETUP.md](docs/SETUP.md) for build details and troubleshooting.
+
+Packaging automatically verifies the bundle identity, ARM64 binaries, artwork, and current application sources. `check:package` repeats those structural checks without launching or locking. Installation, permission identity, and recovery from the actual packaged app still require the [milestone 5 acceptance sequence](docs/MILESTONE-5-QA.md).
