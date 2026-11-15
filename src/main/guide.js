@@ -13,6 +13,9 @@ class UsageGuide {
     Object.assign(this, { path, dialog, canShow, needsPermission, requestPermission, onVisibilityChange, onError });
     this.isOpen = false;
   }
+  notifyStartBlocked() {
+    if (this.isOpen) this.dialog.notifyStartBlocked?.();
+  }
   hasBeenSeen() {
     try { return JSON.parse(readFileSync(this.path, 'utf8')).welcomeVersion === 1; }
     catch { return false; }

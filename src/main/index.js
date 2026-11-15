@@ -1,9 +1,10 @@
-const { app, Tray, Menu, nativeImage, dialog, globalShortcut, shell, powerMonitor } = require('electron');
+const { app, Tray, Menu, nativeImage, BrowserWindow, ipcMain, screen, globalShortcut, shell, powerMonitor } = require('electron');
 const { join } = require('node:path');
 const { helperPath, diagnose } = require('./helper');
 const { SessionController } = require('./controller');
 const { HelperSession } = require('./session');
 const { UsageGuide } = require('./guide');
+const { GuideWindow } = require('./guide-window');
 const START_SHORTCUT = 'Control+Alt+Command+P';
 const smokeTest = process.argv.includes('--smoke-test');
 const bounded = !app.isPackaged && process.argv.includes('--bounded-locks');
@@ -48,7 +49,9 @@ async function enableAccessibility() {
   }
 }
 function startSession() {
-  if (!quitting && !smokeTest && !guide?.isOpen) void controller.start();
+  if (quitting || smokeTest) return;
+  if (guide?.isOpen) { guide.notifyStartBlocked(); return; }
+  void controller.start();
 }
 function registerStartShortcut() {
   if (quitting || shortcutRegistered) return;
@@ -93,7 +96,7 @@ else {
       createSession: path => new HelperSession(path, { mode: bounded ? 'bounded' : 'normal' })
     });
     guide = new UsageGuide(join(app.getPath('userData'), 'welcome.json'), {
-      dialog,
+      dialog: new GuideWindow({ BrowserWindow, ipcMain, screen }),
       canShow: () => !quitting && !controller.session && !controller.busy,
       needsPermission: () => controller.report?.accessibilityTrusted !== true,
       requestPermission: enableAccessibility,

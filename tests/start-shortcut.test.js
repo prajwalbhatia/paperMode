@@ -7,7 +7,7 @@ const vm = require('node:vm');
 
 test('menu can start during a persistent shortcut conflict; retries recover without extra starts', async () => {
   for (const automatic of [false, true]) {
-    let available = false, callback, menu, refresh, starts = 0, registrations = 0, controller, guide;
+    let available = false, callback, menu, refresh, starts = 0, registrations = 0, controller, guide, notices = 0;
     class Controller extends EventEmitter {
       constructor() { super(); controller = this; }
       snapshot = { state: 'ready' };
@@ -30,7 +30,8 @@ test('menu can start during a persistent shortcut conflict; retries recover with
       powerMonitor: new EventEmitter() };
     vm.runInNewContext(readFileSync(join(__dirname, '../src/main/index.js'), 'utf8'), {
       require: id => ({ electron, 'node:path': require('node:path'), './helper': { helperPath: () => 'helper' },
-        './guide': { UsageGuide: class { constructor() { guide = this; } async show() {} } },
+        './guide': { UsageGuide: class { constructor() { guide = this; } async show() {} notifyStartBlocked() { notices++; } } },
+        './guide-window': { GuideWindow: class {} },
         './controller': { SessionController: Controller }, './session': { HelperSession: class {} } })[id],
       __dirname, process: { argv: [] }, console,
       setInterval: fn => { refresh = fn; }, clearInterval() {}, setTimeout, clearTimeout
@@ -69,6 +70,7 @@ test('menu can start during a persistent shortcut conflict; retries recover with
     callback();
     menu.find(x => x.label === 'Start PaperMode').click();
     assert.equal(starts, 2);
+    assert.equal(notices, 2);
     guide.isOpen = false;
     refresh();
     assert.equal(registrations, 2);

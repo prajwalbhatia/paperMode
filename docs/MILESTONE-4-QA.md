@@ -53,3 +53,11 @@ Used an ignored `.build/qa-m4-manual.cjs` harness with the production entry poin
 Computer-use often timed out after closing the last native dialog; app logs and persisted state confirmed those actions completed. All isolated QA apps and temporary shortcut owners were closed afterward. The previously running idle development instance was closed before testing and was not relaunched. Production code and permission toggles were unchanged.
 
 Still pending: direct tray-menu start/help interaction in this milestone, visual welcome layout, physical shortcut testing with the guide open, fresh grant/denial and resulting Ready state in one launch context, display hot-plug/notch/multiple-display behavior, actual shortcut-conflict recovery, and physical sleep during preparation. Authentication and physical device changes require user participation; earlier milestone checks remain supporting evidence, not new passes for these cases.
+
+## Inline start feedback update
+
+Replaced the native alert with a local guide window so it can respond while open. The guide always says to close it before starting. Pressing the start chord while it is open highlights “Close this guide to start PaperMode. Then press Control + Option + Command + P again.” Both global and focused-window handlers provide feedback without starting a session. The message remains in the guide; no second dialog or automatic start is used.
+
+The window uses a sandboxed preload, no Node integration in the page, a local-only CSP, validated sender/button choices, and blocked external navigation. Existing permission choice and welcome acknowledgement behavior is retained. Closing the window is equivalent to cancellation; renderer/load failure rejects rather than granting permission.
+
+Validation: 34 JavaScript tests passed, including notice routing, protection against starting, pending notice delivery, sender/button validation, listener cleanup, cancellation, and renderer failure. Computer-use inspected the rendered window: icon, complete instructions, baseline hint, and Got it were visible and readable; Got it closed the window. Synthetic chord delivery did not show the highlighted notice, so physical shortcut-to-notice verification remains pending. Prior native-dialog QA does not substitute for the new window's remaining permission and relaunch checks.
