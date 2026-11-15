@@ -15,8 +15,13 @@ struct UnlockChord {
         }
     }
 
+    /// nil means idle; 0...1 represents the same hold used to unlock.
+    func progress(now: TimeInterval) -> Double? {
+        guard let startedAt else { return nil }
+        return min(1, max(0, (now - startedAt) / holdDuration))
+    }
+
     func isComplete(now: TimeInterval) -> Bool {
-        guard let startedAt else { return false }
-        return now - startedAt >= holdDuration
+        progress(now: now) == 1
     }
 }

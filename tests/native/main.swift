@@ -46,3 +46,16 @@ check(UnlockLayoutPolicy.supports("L"), "allow uppercase L mapping")
 for source in [nil, "n", "ł", ""] as [String?] {
     check(!UnlockLayoutPolicy.supports(source), "reject unsupported or missing layout")
 }
+
+var progressChord = UnlockChord()
+check(progressChord.progress(now: 0) == nil, "idle has no countdown")
+progressChord.update(letterDown: true, modifiersHeld: true, now: 10)
+check(progressChord.progress(now: 10) == 0, "countdown starts at zero progress")
+check(progressChord.progress(now: 11) == 0.5, "halfway progress matches hold time")
+progressChord.update(letterDown: true, modifiersHeld: true, now: 11)
+check(progressChord.progress(now: 11.5) == 0.75, "repeat does not reset countdown")
+check(progressChord.progress(now: 13) == 1, "completed progress is clamped")
+progressChord.update(modifiersHeld: false, now: 11.5)
+check(progressChord.progress(now: 12) == nil, "early release clears countdown")
+progressChord.update(modifiersHeld: true, now: 14)
+check(progressChord.progress(now: 14) == 0, "new hold restarts countdown")

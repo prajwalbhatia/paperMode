@@ -27,6 +27,12 @@ final class Reminder {
         }
     }
 
+    func updateHoldProgress(_ progress: Double?) {
+        for panel in panels {
+            (panel.contentView as? ReminderCard)?.updateHoldProgress(progress)
+        }
+    }
+
     func close() {
         panels.forEach { $0.orderOut(nil) }
         panels.removeAll()
@@ -36,7 +42,14 @@ final class Reminder {
 
 /// A compact reminder card; only this rectangle is painted over the course.
 final class ReminderCard: NSView {
+    private let hint = NSTextField(labelWithString: "")
+    private let progressTrack = NSView()
+    private let progressFill = NSView()
+    private let preview: Bool
+    private var lastProgress: Double?
+
     init(width: CGFloat, preview: Bool) {
+        self.preview = preview
         super.init(frame: NSRect(x: 0, y: 0, width: width, height: 116))
         wantsLayer = true
         layer?.backgroundColor = NSColor(srgbRed: 0.10, green: 0.11, blue: 0.13, alpha: 0.98).cgColor
@@ -73,9 +86,37 @@ final class ReminderCard: NSView {
             addSubview(cap)
             x += capWidth + 6 * scale
         }
-        label(preview ? "Input stays active during this preview" : "Hold all four keys for 2 seconds to unlock",
-              frame: NSRect(x: 16, y: 13, width: width - 32, height: 17),
-              size: 11, weight: .regular, color: NSColor.white.withAlphaComponent(0.72))
+        hint.stringValue = preview ? "Input stays active during this preview" : "Hold all four keys for 2 seconds to unlock"
+        hint.frame = NSRect(x: 16, y: 13, width: width - 32, height: 17)
+        hint.font = .systemFont(ofSize: 11)
+        hint.textColor = NSColor.white.withAlphaComponent(0.72)
+        addSubview(hint)
+        progressTrack.frame = NSRect(x: 16, y: 6, width: width - 32, height: 3)
+        progressTrack.wantsLayer = true
+        progressTrack.layer?.cornerRadius = 1.5
+        progressTrack.layer?.backgroundColor = NSColor.white.withAlphaComponent(0.12).cgColor
+        progressFill.wantsLayer = true
+        progressFill.layer?.cornerRadius = 1.5
+        progressFill.layer?.backgroundColor = accent.cgColor
+        progressTrack.addSubview(progressFill)
+        progressTrack.isHidden = true
+        addSubview(progressTrack)
+    }
+
+    func updateHoldProgress(_ progress: Double?) {
+        guard !preview, progress != lastProgress else { return }
+        lastProgress = progress
+        progressTrack.isHidden = progress == nil
+        if let progress {
+            let fraction = min(1, max(0, progress))
+            // Round up so the display never says 0.0 seconds before completion.
+            let remaining = ceil((1 - fraction) * 2 * 10) / 10
+            hint.stringValue = String(format: "Keep holding · %.1f seconds to unlock", remaining)
+            progressFill.frame = NSRect(x: 0, y: 0, width: progressTrack.bounds.width * fraction, height: 3)
+        } else {
+            hint.stringValue = "Hold all four keys for 2 seconds to unlock"
+            progressFill.frame = .zero
+        }
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }

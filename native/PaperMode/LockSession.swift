@@ -124,6 +124,7 @@ final class LockSession {
                 finish("keyboard-layout-changed"); return
             }
         }
+        if !preview { reminder.updateHoldProgress(chord.progress(now: now)) }
         if !preview && chord.isComplete(now: now) { finish("shortcut"); return }
         if let tap, !CGEvent.tapIsEnabled(tap: tap) { finish("event-tap-observed-disabled"); return }
         if !preview && now >= permissionCheckAt {
