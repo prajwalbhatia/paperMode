@@ -61,3 +61,20 @@ Replaced the native alert with a local guide window so it can respond while open
 The window uses a sandboxed preload, no Node integration in the page, a local-only CSP, validated sender/button choices, and blocked external navigation. Existing permission choice and welcome acknowledgement behavior is retained. Closing the window is equivalent to cancellation; renderer/load failure rejects rather than granting permission.
 
 Validation: 34 JavaScript tests passed, including notice routing, protection against starting, pending notice delivery, sender/button validation, listener cleanup, cancellation, and renderer failure. Computer-use inspected the rendered window: icon, complete instructions, baseline hint, and Got it were visible and readable; Got it closed the window. Synthetic chord delivery did not show the highlighted notice, so physical shortcut-to-notice verification remains pending. Prior native-dialog QA does not substitute for the new window's remaining permission and relaunch checks.
+
+## User-assisted acceptance and remaining-flow checks — 2026-11-15
+
+The user confirmed these passes on the new guide window:
+
+- Pressing the physical start shortcut with the guide open showed the explanatory message and did not start a lock.
+- Closing with Got it restored menu Start; the countdown and lock worked, deliberate shortcut unlock restored input, and the menu returned to Ready.
+- Quit/relaunch did not repeat welcome. Help reopened normally after closing with the window ×, displayed Got it with permission granted, and did not start a lock.
+- Closing the lid during preparation cancelled the countdown. After reopening, input worked, the menu showed Ready, and no delayed lock occurred.
+
+Additional agent verification:
+
+- Read-only Settings inspection confirmed Visual Studio Code remained enabled. No permission toggle was changed. A separate denied-permission launch through Terminal could not be performed because computer-use policy blocks that app; no alternate route into Terminal was attempted.
+- Added a main-entry/controller/guide integration test with controlled permission inspection, dialog responses, and a nonblocking fake session. It verifies Permission required and disabled Start on denial, no session from the shortcut while denied, Not now without a permission request, explicit Enable leading to Settings and Ready, and menu Start successfully creating one session while shortcut registration continuously returns false.
+- All ten targeted guide/menu tests passed. These controlled tests establish application wiring, not real OS permission transitions or actual shortcut contention. Production code was not changed by this QA pass.
+
+Remaining manual gates are fresh denial/grant through the new guide in one real launch context and a reproducible real OS shortcut conflict. Multiple displays, notch/hot-plug behavior, and external devices remain hardware-dependent. Earlier Milestone 3 permission recovery remains supporting evidence only. The idle development app was closed for the attempted separate-context check; no app or lock was left running by this pass.

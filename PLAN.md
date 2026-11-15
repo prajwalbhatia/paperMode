@@ -6,7 +6,7 @@
 - Milestone 2 merged: native input filtering, deliberate unlock, reminder, and core manual recovery/full-screen QA passed. External devices and multiple displays remain pending (see `docs/MILESTONE-2-QA.md`).
 - Milestone 3 merged, including post-merge review fixes: versioned stdio commands/events, Electron session state, permission controls, start shortcut, and connection cleanup. Automated and real Electron runtime checks passed; core user-reported manual checks and normal-session duration passed; assisted permission revocation and logged normal-session shortcut unlock passed; core development-Mac QA passed, with hardware and release gates deferred (see `docs/MILESTONE-3-QA.md`).
 
-- Milestone 4 implementation started on `milestone-4-user-experience`: first-use permission/use guide, start protection while guidance is open, clearer recovery messages, and current usage docs. Automated checks and agent-assisted welcome/help/Settings flows passed; visual, direct tray, and hardware acceptance remain pending in `docs/MILESTONE-4-QA.md`.
+- Milestone 4 implementation started on `milestone-4-user-experience`: first-use permission/use guide, start protection while guidance is open, clearer recovery messages, and current usage docs. Automated and agent-assisted welcome/help/Settings checks passed; the user verified inline shortcut feedback, direct menu start/unlock, Help/relaunch, and sleep during preparation. Fresh permission transitions, actual OS shortcut conflict, and hardware acceptance remain pending in `docs/MILESTONE-4-QA.md`.
 
 ## Goal
 
