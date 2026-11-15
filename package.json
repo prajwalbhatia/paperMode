@@ -17,7 +17,9 @@
     "test": "node --test tests/*.test.js",
     "test:native": "node scripts/test-native.js",
     "preview:native": "npm run build:native && .build/native/papermode-helper --preview",
-    "test:lock": "npm run build:native && .build/native/papermode-helper --test-lock"
+    "test:lock": "npm run build:native && .build/native/papermode-helper --test-lock",
+    "start:test": "npm run build:native && electron_config_cache=.build/electron-cache electron . --bounded-locks",
+    "test:ipc": "node --test tests/integration/*.test.js"
   },
   "devDependencies": {
     "electron": "45.3.2",

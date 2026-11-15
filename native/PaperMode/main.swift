@@ -19,6 +19,13 @@ if arguments == ["--version"] {
 } else if arguments == ["--request-permission"] {
     let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
     emit(["accessibilityTrusted": AXIsProcessTrustedWithOptions(options)])
+} else if arguments == ["--ipc"] || arguments == ["--ipc-test"] || arguments == ["--ipc-preview"] {
+    let app = NSApplication.shared
+    app.setActivationPolicy(.accessory)
+    let server = IPCServer(preview: arguments == ["--ipc-preview"], bounded: arguments == ["--ipc-test"])
+    server.run()
+    app.run()
+    withExtendedLifetime(server) {}
 } else if arguments == ["--lock"] || arguments == ["--test-lock"] || arguments == ["--preview"] {
     let preview = arguments == ["--preview"]
     let test = arguments == ["--test-lock"]

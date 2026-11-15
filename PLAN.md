@@ -3,7 +3,8 @@
 ## Progress
 
 - Milestone 1 complete: Electron menu bar and diagnostic Swift helper build/run checks passed on Apple Silicon, macOS 27.2.1. See `docs/SETUP.md` for results.
-- Milestone 2 native prototype implemented: input filter, shortcut, reminder, and bounded test harness. Automated checks passed; physical input/full-screen QA is pending (see `docs/MILESTONE-2-QA.md`).
+- Milestone 2 merged: native input filtering, deliberate unlock, reminder, and core manual recovery/full-screen QA passed. External devices and multiple displays remain pending (see `docs/MILESTONE-2-QA.md`).
+- Milestone 3 integration implemented on `milestone-3-app-integration`: versioned stdio commands/events, Electron session state, permission controls, start shortcut, and connection cleanup. Automated checks passed; real Electron lock/permission QA remains pending (see `docs/MILESTONE-3-QA.md`).
 
 ## Goal
 

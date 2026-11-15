@@ -15,7 +15,10 @@ Generated native executables and npm caches are under `.build/` and ignored by G
 - `npm start`: build the helper and launch the development menu bar app.
 - `npm run check:app`: create a menu bar item, execute the helper, report the result, then quit.
 - `npm run package`: require native ARM64 Node on macOS, rebuild and inspect the helper architecture, then assemble an Apple Silicon development app. x64 Node under Rosetta is rejected before any build starts.
-- `npm test`: run packaging architecture guard regression tests.
+- `npm test`: run packaging, JavaScript session-state, and transport regression tests.
+- `npm run test:native`: run native chord, filtering-policy, layout-policy, and permission-probe assertions.
+- `npm run test:ipc`: exercise the actual native protocol and nonblocking preview (build the helper first). Requires a macOS desktop session; never intercepts input.
+- `npm run start:test`: launch Electron with a thirty-second safety limit for app-level manual QA. Normal `npm start` sessions have no automatic timeout.
 
 The native helper now also supports explicit permission, preview, and lock commands. See `docs/MILESTONE-2-QA.md` before running a lock test. The diagnostic command never intercepts input. The JavaScript process executes the helper with an argument array and a five-second diagnostic timeout. This timeout is for the setup check, not a PaperMode session timer.
 

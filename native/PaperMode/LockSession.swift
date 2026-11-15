@@ -2,6 +2,10 @@ import AppKit
 import ApplicationServices
 
 final class LockSession {
+    private let send: ([String: Any]) -> Void
+
+    init(send: @escaping ([String: Any]) -> Void = emit) { self.send = send }
+
     private var tap: CFMachPort?
     private var source: CFRunLoopSource?
     private var timer: Timer?
@@ -22,17 +26,18 @@ final class LockSession {
     private var layoutCheckAt: TimeInterval = 0
 
     func begin(preview: Bool, testDuration: TimeInterval?) {
+        guard !finishing else { return }
         self.preview = preview
         guard getppid() == parentPID else { finish("parent-exited"); return }
         if !preview && !AXIsProcessTrusted() {
-            emit(["event": "error", "reason": "accessibility-required"])
+            send(["event": "error", "reason": "accessibility-required"])
             NSApp.stop(nil)
             exit(2)
         }
         if !preview {
             keyboardSourceID = currentKeyboardSourceID()
             guard UnlockLayoutPolicy.supports(currentUnlockKeyLabel()) else {
-                emit(["event": "error", "reason": "unsupported-keyboard-layout", "message": "Select a keyboard layout with L at the standard U.S. key position before locking."])
+                send(["event": "error", "reason": "unsupported-keyboard-layout", "message": "Select a keyboard layout with L at the standard U.S. key position before locking."])
                 exit(4)
             }
 
@@ -69,13 +74,13 @@ final class LockSession {
                     guard let context else { return Unmanaged.passUnretained(event) }
                     return Unmanaged<LockSession>.fromOpaque(context).takeUnretainedValue().handle(type, event)
                 }, userInfo: Unmanaged.passUnretained(self).toOpaque()) else {
-                emit(["event": "error", "reason": "event-tap-unavailable"])
+                send(["event": "error", "reason": "event-tap-unavailable"])
                 exit(3)
             }
             tap = newTap
             guard let newSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, newTap, 0) else {
                 CFMachPortInvalidate(newTap)
-                emit(["event": "error", "reason": "event-source-unavailable"])
+                send(["event": "error", "reason": "event-source-unavailable"])
                 exit(3)
             }
             source = newSource
@@ -84,7 +89,7 @@ final class LockSession {
         active = true
         lockedAt = ProcessInfo.processInfo.systemUptime
         if let tap { CGEvent.tapEnable(tap: tap, enable: true) }
-        emit(["event": preview ? "preview" : "locked", "testSession": testDuration != nil])
+        send(["event": preview ? "preview" : "locked", "testSession": testDuration != nil])
     }
 
     private func handle(_ type: CGEventType, _ event: CGEvent) -> Unmanaged<CGEvent>? {
@@ -163,7 +168,7 @@ final class LockSession {
         observers.removeAll()
         signals.forEach { $0.cancel() }
         signals.removeAll()
-        emit(["event": "unlocked", "reason": reason, "elapsedMilliseconds": lockedAt.map { Int((ProcessInfo.processInfo.systemUptime - $0) * 1000) } ?? 0])
+        send(["event": "unlocked", "reason": reason, "elapsedMilliseconds": lockedAt.map { Int((ProcessInfo.processInfo.systemUptime - $0) * 1000) } ?? 0])
         NSApp.terminate(nil)
     }
 }
