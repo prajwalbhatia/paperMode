@@ -3,10 +3,11 @@ const { join } = require('node:path');
 const { helperPath, diagnose } = require('./helper');
 const { SessionController } = require('./controller');
 const { HelperSession } = require('./session');
+const { UsageGuide } = require('./guide');
 const START_SHORTCUT = 'Control+Alt+Command+P';
 const smokeTest = process.argv.includes('--smoke-test');
 const bounded = !app.isPackaged && process.argv.includes('--bounded-locks');
-let tray, controller, refreshTimer;
+let tray, controller, refreshTimer, guide;
 let quitting = false;
 let exitCode = 0;
 let canExit = false;
@@ -27,13 +28,31 @@ const messages = {
   'helper-launch-failed': 'Could not launch the native helper. Check the installation.',
   'helper-check-failed': 'Could not check the native helper. Check the installation.',
   'permission-check-failed': 'Permission could not be verified, so the session ended.',
+  'help-unavailable': 'Could not open the guide. Use Enable Accessibility, then Start PaperMode. Hold ⌃⌥⌘L to unlock.',
+  'permission-request-failed': 'Could not request permission. Open macOS Privacy & Security settings and try again.',
+  'reminder-unavailable': 'The unlock reminder could not stay visible. Input has been released.',
+  'event-tap-unavailable': 'macOS could not block input. Check Accessibility permission and try again.',
+  'event-source-unavailable': 'Input blocking could not start. Try again.',
+  'event-tap-timeout': 'macOS stopped input blocking. Input has been released; try again.',
+  'event-tap-disabled-by-user-input': 'macOS stopped input blocking. Input has been released.',
+  'event-tap-observed-disabled': 'Input blocking stopped. Input has been released.',
+  'helper-connection-lost': 'Connection to PaperMode’s input helper was lost. The session has ended.',
   'helper-protocol-error': 'The helper connection returned an invalid response.',
 };
+async function enableAccessibility() {
+  if (quitting || controller.session || controller.busy) return;
+  await controller.requestPermission();
+  if (!quitting) {
+    try { await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility'); }
+    catch { controller.update('error', 'permission-request-failed'); }
+  }
+}
+function startSession() {
+  if (!quitting && !smokeTest && !guide?.isOpen) void controller.start();
+}
 function registerStartShortcut() {
   if (quitting || shortcutRegistered) return;
-  shortcutRegistered = globalShortcut.register(START_SHORTCUT, () => {
-    if (!quitting && !smokeTest) void controller.start();
-  });
+  shortcutRegistered = globalShortcut.register(START_SHORTCUT, startSession);
 }
 function render() {
   if (!tray || tray.isDestroyed()) return;
@@ -50,17 +69,11 @@ function render() {
     { label: 'Unlock: hold ⌃⌥⌘L for 2 seconds', enabled: false },
     ...(reason ? [{ label: messages[reason] || 'Could not maintain the session. Check permission and try again.', enabled: false }] : []),
     { type: 'separator' },
-    { label: 'Start PaperMode', enabled: !quitting && !smokeTest && state === 'ready' && !controller.session && !controller.busy,
-      click: () => { if (!quitting && !smokeTest) void controller.start(); } },
-    { label: 'Enable Accessibility…', enabled: !controller.session && !controller.busy, click: async () => {
-      await controller.requestPermission();
-      if (!quitting) await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility');
-    } },
-    { label: 'Check permission and layout', enabled: !controller.session && !controller.busy, click: () => void controller.refresh() },
-    { label: 'How to use PaperMode', enabled: !controller.session && !controller.busy, click: () => void dialog.showMessageBox({
-      message: 'Watch your course and take paper notes',
-      detail: 'Enable Accessibility for the app macOS identifies. Start your video, then press Control + Option + Command + P or choose Start PaperMode from the menu. You have five seconds to release the keys and position your notebook.\n\nTo unlock, lift the notebook and hold Control + Option + Command + L for two seconds. The reminder shows your progress. Normal sessions have no automatic time limit.'
-    }) },
+    { label: 'Start PaperMode', enabled: !quitting && !smokeTest && !guide?.isOpen && state === 'ready' && !controller.session && !controller.busy,
+      click: startSession },
+    { label: 'Enable Accessibility…', enabled: !guide?.isOpen && !controller.session && !controller.busy, click: enableAccessibility },
+    { label: 'Check permission and layout', enabled: !guide?.isOpen && !controller.session && !controller.busy, click: () => void controller.refresh() },
+    { label: 'How to use PaperMode', enabled: !guide?.isOpen && !controller.session && !controller.busy, click: () => void guide.show() },
     { type: 'separator' },
     { label: 'Quit PaperMode', click: () => app.quit() }
   ]));
@@ -77,6 +90,14 @@ else {
     tray = new Tray(icon);
     controller = new SessionController(helperPath(app), {
       createSession: path => new HelperSession(path, { mode: bounded ? 'bounded' : 'normal' })
+    });
+    guide = new UsageGuide(join(app.getPath('userData'), 'welcome.json'), {
+      dialog,
+      canShow: () => !quitting && !controller.session && !controller.busy,
+      needsPermission: () => controller.report?.accessibilityTrusted !== true,
+      requestPermission: enableAccessibility,
+      onVisibilityChange: render,
+      onError: () => { if (!quitting) controller.update('error', 'help-unavailable'); }
     });
     controller.on('change', render);
     registerStartShortcut();
@@ -98,6 +119,7 @@ else {
     powerMonitor.on('suspend', () => void controller.cancel());
     powerMonitor.on('lock-screen', () => void controller.cancel());
     powerMonitor.on('resume', () => void controller.refresh());
+    if (!bounded) await guide.show({ firstUse: true });
   }).catch(error => { console.error(error.message); exitCode = 1; app.quit(); });
   app.on('window-all-closed', () => {});
   app.on('before-quit', event => {

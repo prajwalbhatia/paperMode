@@ -7,7 +7,7 @@ const vm = require('node:vm');
 
 test('menu can start during a persistent shortcut conflict; retries recover without extra starts', async () => {
   for (const automatic of [false, true]) {
-    let available = false, callback, menu, refresh, starts = 0, registrations = 0, controller;
+    let available = false, callback, menu, refresh, starts = 0, registrations = 0, controller, guide;
     class Controller extends EventEmitter {
       constructor() { super(); controller = this; }
       snapshot = { state: 'ready' };
@@ -21,7 +21,7 @@ test('menu can start during a persistent shortcut conflict; retries recover with
       setContextMenu(value) { menu = value; }
     }
     const app = Object.assign(new EventEmitter(), {
-      setName() {}, requestSingleInstanceLock: () => true,
+      getPath: () => '/unused-test-profile', setName() {}, requestSingleInstanceLock: () => true,
       whenReady: () => Promise.resolve(), dock: { hide() {} }
     });
     const electron = { app, Tray, Menu: { buildFromTemplate: x => x },
@@ -30,6 +30,7 @@ test('menu can start during a persistent shortcut conflict; retries recover with
       powerMonitor: new EventEmitter() };
     vm.runInNewContext(readFileSync(join(__dirname, '../src/main/index.js'), 'utf8'), {
       require: id => ({ electron, 'node:path': require('node:path'), './helper': { helperPath: () => 'helper' },
+        './guide': { UsageGuide: class { constructor() { guide = this; } async show() {} } },
         './controller': { SessionController: Controller }, './session': { HelperSession: class {} } })[id],
       __dirname, process: { argv: [] }, console,
       setInterval: fn => { refresh = fn; }, clearInterval() {}, setTimeout, clearTimeout
@@ -62,6 +63,13 @@ test('menu can start during a persistent shortcut conflict; retries recover with
     assert.ok(menu.some(x => x.label === 'Start: ⌃⌥⌘P'));
     callback();
     assert.equal(starts, 2);
+    guide.isOpen = true;
+    controller.emit('change');
+    assert.equal(menu.find(x => x.label === 'Start PaperMode').enabled, false);
+    callback();
+    menu.find(x => x.label === 'Start PaperMode').click();
+    assert.equal(starts, 2);
+    guide.isOpen = false;
     refresh();
     assert.equal(registrations, 2);
   }
