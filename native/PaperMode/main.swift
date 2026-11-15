@@ -5,6 +5,11 @@ import Foundation
 let arguments = Array(CommandLine.arguments.dropFirst())
 if arguments == ["--version"] {
     print("0.1.0")
+} else if arguments == ["--check-accessibility"] {
+    // Internal, non-prompting probe: no AppKit session or input interception.
+    // Bound its lifetime even if the lock helper itself is killed.
+    alarm(3)
+    exit(AXIsProcessTrusted() ? 0 : 2)
 } else if arguments == ["--diagnose"] {
     emit(["name": "papermode-helper", "protocolVersion": 1, "version": "0.1.0",
           "osVersion": ProcessInfo.processInfo.operatingSystemVersionString,

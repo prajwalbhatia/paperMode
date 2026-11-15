@@ -59,3 +59,39 @@ progressChord.update(modifiersHeld: false, now: 11.5)
 check(progressChord.progress(now: 12) == nil, "early release clears countdown")
 progressChord.update(modifiersHeld: true, now: 14)
 check(progressChord.progress(now: 14) == 0, "new hold restarts countdown")
+
+// Real subprocess checks, without Accessibility changes or input interception.
+func pump(until condition: () -> Bool, timeout: TimeInterval = 3) {
+    let deadline = Date().addingTimeInterval(timeout)
+    while !condition() && Date() < deadline {
+        RunLoop.main.run(until: Date().addingTimeInterval(0.01))
+    }
+}
+func probeResult(_ path: String, _ args: [String], timeout: TimeInterval = 1) -> PermissionProbe.Result? {
+    let probe = PermissionProbe(executable: URL(fileURLWithPath: path), arguments: args, timeout: timeout)
+    var result: PermissionProbe.Result?
+    probe.start { result = $0 }
+    pump(until: { result != nil })
+    check(!probe.isRunning, "permission probe completes without pending state")
+    return result
+}
+check(probeResult("/usr/bin/true", []) == .trusted, "fresh successful probe accepts trust")
+check(probeResult("/bin/sh", ["-c", "exit 2"]) == .denied, "revoked permission is distinguished from probe failure")
+check(probeResult("/usr/bin/false", []) == .failed, "unexpected probe exit fails closed")
+check(probeResult("/nonexistent/papermode-test", []) == .failed, "probe launch error fails closed")
+check(probeResult("/bin/sleep", ["5"], timeout: 0.1) == .failed, "hung probe fails closed before process exits")
+let cancelledProbe = PermissionProbe(executable: URL(fileURLWithPath: "/bin/sleep"), arguments: ["5"], timeout: 0.1)
+var cancelledCallbacks = 0
+cancelledProbe.start { _ in cancelledCallbacks += 1 }
+cancelledProbe.cancel()
+pump(until: { false }, timeout: 0.2)
+check(!cancelledProbe.isRunning && cancelledCallbacks == 0, "session cleanup suppresses late probe and watchdog callbacks")
+let repeatedProbe = PermissionProbe(executable: URL(fileURLWithPath: "/usr/bin/true"), arguments: [])
+var probeCallbacks = 0
+repeatedProbe.start { _ in probeCallbacks += 1 }
+repeatedProbe.start { _ in probeCallbacks += 100 }
+pump(until: { probeCallbacks != 0 })
+check(probeCallbacks == 1, "overlapping checks do not launch a second probe")
+repeatedProbe.start { _ in probeCallbacks += 1 }
+pump(until: { probeCallbacks == 2 })
+check(probeCallbacks == 2, "subsequent permission checks can run after completion")

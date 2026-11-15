@@ -14,6 +14,7 @@ final class LockSession {
     private var active = false
     private var deadline: TimeInterval?
     private var preview = false
+    private let permissionProbe = PermissionProbe()
     private var permissionCheckAt: TimeInterval = 0
     private var keyboardSourceID: String?
     private var lockedAt: TimeInterval?
@@ -127,9 +128,17 @@ final class LockSession {
         if !preview { reminder.updateHoldProgress(chord.progress(now: now)) }
         if !preview && chord.isComplete(now: now) { finish("shortcut"); return }
         if let tap, !CGEvent.tapIsEnabled(tap: tap) { finish("event-tap-observed-disabled"); return }
-        if !preview && now >= permissionCheckAt {
-            permissionCheckAt = now + 1
-            if !AXIsProcessTrusted() { finish("permission-revoked") }
+        if !preview && now >= permissionCheckAt && !permissionProbe.isRunning {
+            if !AXIsProcessTrusted() { finish("permission-revoked"); return }
+            permissionProbe.start { [weak self] result in
+                guard let self, !self.finishing else { return }
+                self.permissionCheckAt = ProcessInfo.processInfo.systemUptime + 1
+                switch result {
+                case .trusted: break
+                case .denied: self.finish("permission-revoked")
+                case .failed: self.finish("permission-check-failed")
+                }
+            }
         }
     }
 
@@ -141,6 +150,7 @@ final class LockSession {
         if let source { CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes) }
         tap = nil
         source = nil
+        permissionProbe.cancel()
         timer?.invalidate()
         timer = nil
         reminder.close()
