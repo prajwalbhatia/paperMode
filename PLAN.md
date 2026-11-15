@@ -10,6 +10,8 @@
 
 ## Goal
 
+Future milestone 7 is reserved for deliberate play/pause while input remains locked. It is planned only; implementation is not authorized yet and it does not expand the current release scope.
+
 Let someone place a notebook over a MacBook's keyboard and trackpad while watching a course. The video and sound continue without dimming or blur. A small unlock reminder is the only content PaperMode places above the course.
 
 ## First release
@@ -77,6 +79,32 @@ Add a README with install/use/uninstall instructions, a short demo, supported ve
 
 Done when the release files and documentation are reviewable. Creating a public repository, choosing the final license, and publishing are separate release actions to settle with the owner.
 
+### 7. Explore and add play/pause while locked — deferred
+
+Let the user briefly lift the notebook, deliberately pause or resume the course, and continue writing without unlocking and relocking. Keep the existing two-second unlock chord unchanged. Start with play/pause only; rewind, remote controls, and hands-free operation are outside this milestone.
+
+**Phase A — feasibility and reliability:** compare system media commands with explicit browser/player targeting in Chrome and Safari. Browser media-key support is established by documentation, but reliable routing to the intended course and delivery through PaperMode's active input filter have not been verified. System commands may target a different media session. Investigate the simpler system-command approach first; consider browser integration only if targeting cannot meet the acceptance criteria, documenting the extra permissions and maintenance involved.
+
+Test both browsers against the user's actual course platforms, recording browser/macOS versions and results for:
+
+- Repeated pause/resume in windowed and full-screen playback.
+- Resuming after several minutes paused for note-taking.
+- Multiple video tabs, both browsers open, and a competing media app.
+- Focus changes, unsupported players, and no eligible media session.
+- Continuously blocked keyboard, pointer, and ordinary media-key input while the deliberate playback action is delivered.
+
+**Decision gate:** review the evidence with the owner before selecting an approach or implementing the feature. Do not treat documentation support as an end-to-end reliability pass. If the intended player cannot be targeted reliably, document that limitation rather than silently controlling other media.
+
+**Phase B — implementation, only after approval:** choose a deliberate chord distinct from unlock, show it in the reminder, and debounce it so one deliberate activation causes one action. Control + Option + Command + Space and a short hold are candidates, not settled decisions. Deliver playback control without temporarily disabling the input lock or allowing notebook-generated input through. Give accurate feedback: do not claim playback changed unless it can be confirmed. Preserve all existing unlock and failure-recovery behavior.
+
+Done when the agreed Chrome/Safari compatibility matrix passes, the intended course is controlled consistently within the documented support scope, ordinary input remains blocked throughout, and regression tests confirm unlock and recovery still work. Until then this remains a deferred feature, separate from milestones 4–6.
+
+Research references (feasibility review, 2026-11-15):
+
+- [Chrome hardware media-key support](https://developer.chrome.com/blog/media-updates-in-chrome-73)
+- [Media Session routing specification](https://www.w3.org/TR/mediasession/#routing)
+- [WebKit Now Playing session selection](https://github.com/WebKit/WebKit/blob/main/Source/WebCore/platform/audio/cocoa/MediaSessionManagerCocoa.mm)
+
 ## Planned source layout
 
 ```text
@@ -88,7 +116,7 @@ tests/             State/protocol/recovery tests
 docs/              Setup instructions and manual test results
 ```
 
-The first version has no backend, account system, remote playback control, device exclusions, automatic updater, or configurable shortcut. Additions can be considered after the core workflow passes testing.
+The first version has no backend, account system, remote playback control, device exclusions, automatic updater, or configurable shortcut. Deliberate playback control is reserved for deferred milestone 7; other additions can be considered after the core workflow passes testing.
 
 ## Acceptance checks
 
