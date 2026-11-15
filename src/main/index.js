@@ -50,6 +50,8 @@ function render() {
     { label: 'Unlock: hold ⌃⌥⌘L for 2 seconds', enabled: false },
     ...(reason ? [{ label: messages[reason] || 'Could not maintain the session. Check permission and try again.', enabled: false }] : []),
     { type: 'separator' },
+    { label: 'Start PaperMode', enabled: !quitting && !smokeTest && state === 'ready' && !controller.session && !controller.busy,
+      click: () => { if (!quitting && !smokeTest) void controller.start(); } },
     { label: 'Enable Accessibility…', enabled: !controller.session && !controller.busy, click: async () => {
       await controller.requestPermission();
       if (!quitting) await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility');
@@ -57,7 +59,7 @@ function render() {
     { label: 'Check permission and layout', enabled: !controller.session && !controller.busy, click: () => void controller.refresh() },
     { label: 'How to use PaperMode', enabled: !controller.session && !controller.busy, click: () => void dialog.showMessageBox({
       message: 'Watch your course and take paper notes',
-      detail: 'Enable Accessibility for the app macOS identifies. Start your video, then press Control + Option + Command + P. You have five seconds to release the keys and position your notebook.\n\nTo unlock, lift the notebook and hold Control + Option + Command + L for two seconds. The reminder shows your progress. Normal sessions have no automatic time limit.'
+      detail: 'Enable Accessibility for the app macOS identifies. Start your video, then press Control + Option + Command + P or choose Start PaperMode from the menu. You have five seconds to release the keys and position your notebook.\n\nTo unlock, lift the notebook and hold Control + Option + Command + L for two seconds. The reminder shows your progress. Normal sessions have no automatic time limit.'
     }) },
     { type: 'separator' },
     { label: 'Quit PaperMode', click: () => app.quit() }

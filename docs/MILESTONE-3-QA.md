@@ -85,6 +85,8 @@ Protocol details: [HELPER-PROTOCOL.md](HELPER-PROTOCOL.md).
 ## Post-merge review fixes — 2026-11-15
 
 - Native cancellation observers are installed before preparation starts (and idempotently for direct begin calls). Sleep or session deactivation now finishes the helper and invalidates its preparation timer without relying on Electron cancellation.
-- Preserved the agreed shortcut-only start design. If registration fails, the menu explains that the conflicting binding must be released and offers Retry start shortcut; the app also retries every three seconds. Registration recovery never starts a session itself. This is recovery after the conflict is removed, not an alternative start path while another app still owns the shortcut.
+- Added Start PaperMode to the menu, independent of shortcut registration, following the requested review correction. It calls the existing controller start path, preserving permission/layout preflight and duplicate-start protection, and is disabled unless Ready and idle. Shortcut retry remains available and never starts a session itself. Help text documents both start paths.
 - Validation: native build, 26 JavaScript tests, and ten native integration tests passed. New tests exercise both retry paths with a simulated registration conflict, and send local sleep/session-deactivation notifications through the real native preparation path in nonblocking preview mode. Both native cases exited before locking with the expected reason and zero locked duration.
 - Actual OS shortcut contention and physical sleep during the countdown remain manual follow-up checks; the tests do not put the Mac to sleep or intercept input.
+
+Follow-up regression check: all 26 JavaScript tests passed. The menu test keeps shortcut registration unavailable while invoking Start PaperMode and verifies the controller start call occurs; it also checks disabled state while busy or a session exists. Actual OS shortcut contention remains a manual check.

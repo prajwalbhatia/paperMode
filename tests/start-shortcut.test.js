@@ -5,10 +5,11 @@ const { readFileSync } = require('node:fs');
 const { join } = require('node:path');
 const vm = require('node:vm');
 
-test('shortcut conflict can recover through menu retry or automatic retry without starting a session', async () => {
+test('menu can start during a persistent shortcut conflict; retries recover without extra starts', async () => {
   for (const automatic of [false, true]) {
-    let available = false, callback, menu, refresh, starts = 0, registrations = 0;
+    let available = false, callback, menu, refresh, starts = 0, registrations = 0, controller;
     class Controller extends EventEmitter {
+      constructor() { super(); controller = this; }
       snapshot = { state: 'ready' };
       async refresh() {}
       start() { starts++; }
@@ -36,15 +37,31 @@ test('shortcut conflict can recover through menu retry or automatic retry withou
     await new Promise(resolve => setImmediate(resolve));
     assert.equal(registrations, 1);
     assert.ok(menu.some(x => x.label === 'Retry start shortcut'));
+    // Keep registration unavailable: the menu must still offer an independent start.
+    const start = menu.find(x => x.label === 'Start PaperMode');
+    assert.equal(start.enabled, true);
+    start.click();
+    assert.equal(starts, 1);
+    assert.equal(available, false);
+    assert.equal(callback, undefined);
+    controller.busy = true;
+    controller.emit('change');
+    assert.equal(menu.find(x => x.label === 'Start PaperMode').enabled, false);
+    controller.busy = false;
+    controller.session = {};
+    controller.emit('change');
+    assert.equal(menu.find(x => x.label === 'Start PaperMode').enabled, false);
+    controller.session = null;
+    controller.emit('change');
     available = true;
     if (automatic) refresh();
     else menu.find(x => x.label === 'Retry start shortcut').click();
     assert.equal(registrations, 2);
-    assert.equal(starts, 0);
+    assert.equal(starts, 1);
     assert.ok(!menu.some(x => x.label === 'Retry start shortcut'));
     assert.ok(menu.some(x => x.label === 'Start: ⌃⌥⌘P'));
     callback();
-    assert.equal(starts, 1);
+    assert.equal(starts, 2);
     refresh();
     assert.equal(registrations, 2);
   }
