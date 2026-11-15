@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { spawn } = require('node:child_process');
 const { join } = require('node:path');
 const { HelperSession } = require('../../src/main/session');
-const path = join(__dirname, '../../.build/native/papermode-helper');
+const path = process.env.PAPERMODE_TEST_HELPER || join(__dirname, '../../.build/native/papermode-helper');
 async function server(t, mode = '--ipc') {
   const child = spawn(path, [mode], { stdio: ['pipe', 'pipe', 'pipe'] });
   t.after(() => { if (child.exitCode === null) child.kill('SIGKILL'); });

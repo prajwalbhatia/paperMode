@@ -44,6 +44,28 @@ This checks tray creation, shortcut registration, and bundled-helper diagnostics
 
 ### Continue acceptance
 
+### Installed-app manual recovery passes — 2026-11-16
+
+- User confirmed physical lid closure during preparation cancels the countdown: input works after wake, menu shows Ready, and no delayed lock starts after ten seconds.
+- User confirmed physical lid closure while locked releases the session: reminder disappears, input works without the unlock chord, menu shows Ready, and no automatic relock occurs.
+- User confirmed Quit during preparation removes the countdown and icon, leaves input usable, and never starts a delayed lock. Finder relaunch returns Ready without locking.
+- Full installed-app parent crash passed. A one-time QA watcher observed the app-owned `--ipc` helper, waited eight seconds from helper creation (past preparation), then killed only the verified parent. The helper exited within five seconds without emergency cleanup. User confirmed reminder removal, usable input, and uninterrupted video. Evidence: ignored `.build/m5-parent-crash.log`.
+- Full installed-app helper crash passed. A watcher killed only the verified app-owned helper after preparation. User confirmed input restoration, uninterrupted video, and the app remaining in the menu bar with “Connection to PaperMode’s input helper was lost. The session has ended.” Evidence: ignored `.build/m5-helper-crash.log`. Recovery back to Ready and another session is the next check.
+
+These passes supersede the corresponding pending sleep/crash checks below. Permission revocation during an installed-app lock, relocation/replacement, and hardware/study-session acceptance remain outstanding.
+
+### Acceptance progress — 2026-11-16
+
+- After installing the corrected signed build, macOS still rejected the old saved grant. TCC logs explicitly reported a code-requirement mismatch between the old Electron hash and the corrected PaperMode hash. Removed the stale PaperMode entry through Settings; the app reappeared disabled. The user enabled it again. Settings showed on, subsequent permission decisions had no mismatch/error, and the user confirmed Ready with Start enabled. This resolves the observed permission blocker for this installed build; upgrade persistence is still unverified.
+- User-confirmed installed app pass: full-screen video continued, input stayed blocked, early unlock release reset progress, the two-second shortcut unlocked, and the menu returned to Ready.
+- User-confirmed quit/relaunch pass: welcome did not reopen, Ready/Start returned, no automatic lock occurred, and menu Start plus shortcut unlock worked.
+- Agent attempted a CUA-generated global start chord; no native session was created. This did not exercise app-level recovery and is not recorded as a shortcut failure (physical shortcut passed above).
+- Added `PAPERMODE_TEST_HELPER` support to the IPC test suite. All nine protocol/preview tests passed against `/Applications/PaperMode.app/Contents/Resources/papermode-helper`, including malformed protocol rejection, duplicate-start rejection, preparation shutdown, and active-preview connection loss. Run with `PAPERMODE_TEST_HELPER=/Applications/PaperMode.app/Contents/Resources/papermode-helper node --test tests/integration/ipc.test.js`.
+- Agent ran four additional real input-lock checks against that installed helper using `--ipc-test`: shutdown during preparation (no locked event), shutdown after locked (`app-quit`), EOF after locked (`connection-lost`), and SIGKILL after locked (verified process termination). Each case had a 20-second external cleanup deadline in addition to bounded helper mode. All passed; evidence is in ignored `.build/m5-recovery.jsonl`, harness `.build/m5-recovery.cjs`. No test helper remained afterward; the original installed app remained running.
+- These helper tests launch from the agent shell, not from the installed Electron controller. They establish protocol/process recovery for the shipped binary, not physical input delivery, Electron menu recovery, Finder permission identity, or video continuity during each failure. No ordinary key/mouse delivery assertion was made in these four runs.
+
+Remaining: physical sleep during preparation/lock; full installed-app quit/crash/revocation recovery; relocation/replacement and renewed permissions; study-session and hardware acceptance. The new-guide Not now / Enable flow is now user-confirmed, superseding that pending milestone 4 item for the packaged build.
+
 1. Quit development instances. Install the bundle in Applications without overwriting an unrelated or unverified existing app. Launch through Finder and verify the guide, icon, menu, and helper resources.
 2. Verify denied permission, Not now, and Enable Accessibility through the guide. Record the exact identity macOS requests. Authenticate personally if prompted. Confirm Ready after grant, without relying on VS Code's grant.
 3. Start from menu and shortcut; verify the preparation countdown, uninterrupted full-screen playback, all input suppressed, early-release reset, and two-second unlock. Normal packaged sessions have no automatic timeout.
