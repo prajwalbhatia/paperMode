@@ -38,9 +38,7 @@ if arguments == ["--version"] {
     let session = LockSession()
     let delay: TimeInterval = preview ? 0 : 5
     emit(["event": "starting", "delaySeconds": delay, "preview": preview])
-    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-        session.begin(preview: preview, testDuration: preview ? 10 : (test ? 30 : nil))
-    }
+    session.prepare(delay: delay, preview: preview, testDuration: preview ? 10 : (test ? 30 : nil))
     app.run()
     withExtendedLifetime(session) {}
 } else {

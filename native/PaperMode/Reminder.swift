@@ -4,7 +4,7 @@ final class Reminder {
     private var panels: [NSPanel] = []
     var isVisible: Bool { !panels.isEmpty && panels.allSatisfy(\.isVisible) }
 
-    func show(preview: Bool = false) {
+    func show(preview: Bool = false, preparingSeconds: Int? = nil) {
         close()
         for screen in NSScreen.screens {
             let area = screen.visibleFrame
@@ -20,10 +20,16 @@ final class Reminder {
             panel.isOpaque = false
             panel.backgroundColor = .clear
             panel.hasShadow = false
-            let view = ReminderCard(width: width, preview: preview)
+            let view = ReminderCard(width: width, preview: preview, preparingSeconds: preparingSeconds)
             panel.contentView = view
             panel.orderFrontRegardless()
             panels.append(panel)
+        }
+    }
+
+    func updatePreparation(seconds: Int) {
+        for panel in panels {
+            (panel.contentView as? ReminderCard)?.updatePreparation(seconds: seconds)
         }
     }
 
@@ -43,12 +49,13 @@ final class Reminder {
 /// A compact reminder card; only this rectangle is painted over the course.
 final class ReminderCard: NSView {
     private let hint = NSTextField(labelWithString: "")
+    private let preparation = NSTextField(labelWithString: "")
     private let progressTrack = NSView()
     private let progressFill = NSView()
     private let preview: Bool
     private var lastProgress: Double?
 
-    init(width: CGFloat, preview: Bool) {
+    init(width: CGFloat, preview: Bool, preparingSeconds: Int? = nil) {
         self.preview = preview
         super.init(frame: NSRect(x: 0, y: 0, width: width, height: 116))
         wantsLayer = true
@@ -63,7 +70,7 @@ final class ReminderCard: NSView {
         icon.contentTintColor = accent
         addSubview(icon)
         label("PaperMode", frame: NSRect(x: 44, y: 80, width: 110, height: 20), size: 14, weight: .semibold, color: .white)
-        let status = preview ? "PREVIEW" : "LOCKED"
+        let status = preparingSeconds != nil ? "STARTING" : (preview ? "PREVIEW" : "LOCKED")
         label(status, frame: NSRect(x: width - 94, y: 83, width: 78, height: 16), size: 10, weight: .semibold, color: accent, alignment: .right)
 
         let keys: [(String, CGFloat)] = [("⌃ Control", 77), ("⌥ Option", 77), ("⌘ Cmd", 70), ("L", 34)]
@@ -84,6 +91,7 @@ final class ReminderCard: NSView {
             text.frame = NSRect(x: 0, y: 6, width: capWidth, height: 17)
             cap.addSubview(text)
             addSubview(cap)
+            cap.isHidden = preparingSeconds != nil
             x += capWidth + 6 * scale
         }
         hint.stringValue = preview ? "Input stays active during this preview" : "Hold all four keys for 2 seconds to unlock"
@@ -101,6 +109,17 @@ final class ReminderCard: NSView {
         progressTrack.addSubview(progressFill)
         progressTrack.isHidden = true
         addSubview(progressTrack)
+        preparation.frame = NSRect(x: 16, y: 39, width: width - 32, height: 29)
+        preparation.font = .systemFont(ofSize: 20, weight: .semibold)
+        preparation.textColor = .white
+        preparation.isHidden = preparingSeconds == nil
+        addSubview(preparation)
+        if let preparingSeconds { updatePreparation(seconds: preparingSeconds) }
+    }
+
+    func updatePreparation(seconds: Int) {
+        preparation.stringValue = "Locking in \(seconds)…"
+        hint.stringValue = "Release the keys and get your notebook ready"
     }
 
     func updateHoldProgress(_ progress: Double?) {

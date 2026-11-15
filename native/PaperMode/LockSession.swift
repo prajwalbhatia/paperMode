@@ -9,6 +9,7 @@ final class LockSession {
     private var tap: CFMachPort?
     private var source: CFRunLoopSource?
     private var timer: Timer?
+    private var preparationTimer: Timer?
     private var activity: NSObjectProtocol?
     private var observers: [NSObjectProtocol] = []
     private var signals: [DispatchSourceSignal] = []
@@ -24,6 +25,28 @@ final class LockSession {
     private var lockedAt: TimeInterval?
     private var finishing = false
     private var layoutCheckAt: TimeInterval = 0
+
+    func prepare(delay: TimeInterval, preview: Bool, testDuration: TimeInterval?) {
+        guard !finishing else { return }
+        guard delay > 0 else { begin(preview: preview, testDuration: testDuration); return }
+        let startsAt = ProcessInfo.processInfo.systemUptime + delay
+        reminder.show(preview: preview, preparingSeconds: Int(ceil(delay)))
+        guard reminder.isVisible else { finish("reminder-unavailable"); return }
+        let timer = Timer(timeInterval: 0.05, repeats: true) { [weak self] _ in
+            guard let self, !self.finishing else { return }
+            guard getppid() == self.parentPID else { self.finish("parent-exited"); return }
+            let remaining = startsAt - ProcessInfo.processInfo.systemUptime
+            if remaining <= 0 {
+                self.preparationTimer?.invalidate()
+                self.preparationTimer = nil
+                self.begin(preview: preview, testDuration: testDuration)
+            } else {
+                self.reminder.updatePreparation(seconds: Int(ceil(remaining)))
+            }
+        }
+        preparationTimer = timer
+        RunLoop.main.add(timer, forMode: .common)
+    }
 
     func begin(preview: Bool, testDuration: TimeInterval?) {
         guard !finishing else { return }
@@ -156,6 +179,8 @@ final class LockSession {
         tap = nil
         source = nil
         permissionProbe.cancel()
+        preparationTimer?.invalidate()
+        preparationTimer = nil
         timer?.invalidate()
         timer = nil
         reminder.close()

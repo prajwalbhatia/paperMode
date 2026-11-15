@@ -81,10 +81,7 @@ final class IPCServer {
                     return
                 }
                 send(["event": "starting", "delaySeconds": 5], id: id)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
-                    guard let self, !self.closed else { return }
-                    self.session.begin(preview: self.preview, testDuration: self.preview ? 10 : (self.bounded ? 30 : nil))
-                }
+                session.prepare(delay: 5, preview: preview, testDuration: preview ? 10 : (bounded ? 30 : nil))
             case "shutdown":
                 session.finish("app-quit")
                 closed = true
