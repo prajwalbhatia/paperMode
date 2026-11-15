@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const { readFileSync, readdirSync, accessSync, constants } = require('node:fs');
 const { join, resolve } = require('node:path');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, spawnSync } = require('node:child_process');
 const root = join(__dirname, '..');
 
 // Structural checks only: never launch the app, request permission, or lock input.
@@ -16,6 +16,11 @@ async function checkPackage(bundle = join(root, 'out/PaperMode-darwin-arm64/Pape
   assert.equal(plist.CFBundleShortVersionString, pkg.version);
   assert.equal(plist.LSUIElement, true);
   assert.equal(plist.LSMinimumSystemVersion, '13.0');
+  execFileSync('codesign', ['--verify', '--deep', '--strict', resolve(bundle)], { stdio: 'pipe' });
+  const signature = spawnSync('codesign', ['-dv', resolve(bundle)], { encoding: 'utf8' });
+  if (signature.error) throw signature.error;
+  assert.equal(signature.status, 0, signature.stderr);
+  assert.match(signature.stderr, /^Identifier=app\.papermode\.desktop$/m);
   for (const binary of [join(contents, 'MacOS', plist.CFBundleExecutable), join(resources, 'papermode-helper')]) {
     accessSync(binary, constants.X_OK);
     assert.equal(execFileSync('lipo', ['-archs', binary], { encoding: 'utf8' }).trim(), 'arm64');

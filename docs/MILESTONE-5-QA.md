@@ -10,7 +10,7 @@ Run `npm run package` with native ARM64 Node on macOS. It builds the helper, pac
 node scripts/check-package.js /path/to/PaperMode.app
 ```
 
-The checker verifies bundle ID/version/menu-bar mode, deployment target, executable permissions, ARM64 architecture, exact native helper and icon bytes, and current application sources inside app.asar. It never launches the app or changes permissions. Run against the same checkout/build that produced the bundle; mismatched sources deliberately fail.
+The checker verifies bundle ID/version/menu-bar mode, deployment target, executable permissions, ARM64 architecture, exact native helper and icon bytes, and current application sources inside app.asar. It also requires strict deep code-signature verification and the app signing identifier `app.papermode.desktop`. It never launches the app or changes permissions. Run against the same checkout/build that produced the bundle; mismatched sources deliberately fail.
 
 Default artifact: `out/PaperMode-darwin-arm64/PaperMode.app`.
 
@@ -32,6 +32,17 @@ This checks tray creation, shortcut registration, and bundled-helper diagnostics
 - Actual test host: Apple Silicon, macOS 27.2.1. The deployment target does not establish older macOS compatibility.
 
 ## Remaining acceptance sequence
+
+### Installed-app permission failure and signing correction
+
+- Installed in `/Applications/PaperMode.app`, verified copied contents, and launched through Finder. Process inspection confirmed the installed path. The existing development welcome acknowledgement was retained; this was not a fresh-profile onboarding test.
+- Visually inspected the packaged Help guide and artwork. It offered Enable Accessibility / Not now. The user confirmed Not now produced neither a prompt nor a lock, and Enable Accessibility opened Settings with PaperMode identified.
+- Settings showed PaperMode enabled, but the app remained Permission required even after the user quit, toggled permission off/on, relaunched through Finder, and refreshed. Packaged permission acceptance **failed**; no lock was attempted.
+- Investigation found `codesign --verify --deep --strict` failed on the installed bundle. TCC attribution logs identified the responsible app as `Electron`, with the bundled native helper as accessor. The existing linker signatures did not correctly seal the renamed Electron app/helper bundles. This is a verified packaging defect and a suspected cause of the permission failure, not yet a verified end-to-end fix.
+- Added Forge ad-hoc signing of the app and nested Electron code, preserving the Swift helper's valid build signature. Full strict deep verification now passes and the main signing identifier is `app.papermode.desktop`. The new package checker rejects the old invalid app. This does not provide Developer ID trust, notarization, or a stable upgrade permission guarantee.
+- Rebuilt and installed the corrected artifact, preserving the old copy at ignored `.build/m5-before-signing.app`. Installed structural/signature checks passed. Finder automation could not reconnect; corrected Finder launch and permission reapproval remain user-assisted pending checks.
+
+### Continue acceptance
 
 1. Quit development instances. Install the bundle in Applications without overwriting an unrelated or unverified existing app. Launch through Finder and verify the guide, icon, menu, and helper resources.
 2. Verify denied permission, Not now, and Enable Accessibility through the guide. Record the exact identity macOS requests. Authenticate personally if prompted. Confirm Ready after grant, without relying on VS Code's grant.
