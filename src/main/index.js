@@ -29,6 +29,12 @@ const messages = {
   'permission-check-failed': 'Permission could not be verified, so the session ended.',
   'helper-protocol-error': 'The helper connection returned an invalid response.',
 };
+function registerStartShortcut() {
+  if (quitting || shortcutRegistered) return;
+  shortcutRegistered = globalShortcut.register(START_SHORTCUT, () => {
+    if (!quitting && !smokeTest) void controller.start();
+  });
+}
 function render() {
   if (!tray || tray.isDestroyed()) return;
   const { state, reason } = controller.snapshot;
@@ -39,6 +45,8 @@ function render() {
     { label: `PaperMode — ${labels[state]}`, enabled: false },
     ...(bounded ? [{ label: 'Development mode: 30-second safety limit', enabled: false }] : []),
     { label: shortcutRegistered ? 'Start: ⌃⌥⌘P' : 'Start shortcut unavailable — another app may be using it', enabled: false },
+    ...(!shortcutRegistered ? [{ label: 'Release ⌃⌥⌘P in the other app, then retry', enabled: false },
+      { label: 'Retry start shortcut', click: () => { registerStartShortcut(); render(); } }] : []),
     { label: 'Unlock: hold ⌃⌥⌘L for 2 seconds', enabled: false },
     ...(reason ? [{ label: messages[reason] || 'Could not maintain the session. Check permission and try again.', enabled: false }] : []),
     { type: 'separator' },
@@ -69,7 +77,7 @@ else {
       createSession: path => new HelperSession(path, { mode: bounded ? 'bounded' : 'normal' })
     });
     controller.on('change', render);
-    shortcutRegistered = globalShortcut.register(START_SHORTCUT, () => { if (!quitting && !smokeTest) void controller.start(); });
+    registerStartShortcut();
     render();
     await controller.refresh();
     if (quitting) return;
@@ -82,6 +90,7 @@ else {
     }
     // Fresh diagnostics while idle detect settings changes without caching AX state in Electron.
     refreshTimer = setInterval(() => {
+      if (!shortcutRegistered) { registerStartShortcut(); render(); }
       if (['ready', 'permission-required'].includes(controller.snapshot.state)) void controller.refresh();
     }, 3000);
     powerMonitor.on('suspend', () => void controller.cancel());

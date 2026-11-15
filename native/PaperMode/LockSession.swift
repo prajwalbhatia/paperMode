@@ -26,8 +26,18 @@ final class LockSession {
     private var finishing = false
     private var layoutCheckAt: TimeInterval = 0
 
+    private var cancellationObserversInstalled = false
+
+    private func observeCancellation() {
+        guard !cancellationObserversInstalled else { return }
+        cancellationObserversInstalled = true
+        observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in self?.finish("system-sleep") })
+        observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.sessionDidResignActiveNotification, object: nil, queue: .main) { [weak self] _ in self?.finish("session-inactive") })
+    }
+
     func prepare(delay: TimeInterval, preview: Bool, testDuration: TimeInterval?) {
         guard !finishing else { return }
+        observeCancellation()
         guard delay > 0 else { begin(preview: preview, testDuration: testDuration); return }
         let startsAt = ProcessInfo.processInfo.systemUptime + delay
         reminder.show(preview: preview, preparingSeconds: Int(ceil(delay)))
@@ -50,6 +60,7 @@ final class LockSession {
 
     func begin(preview: Bool, testDuration: TimeInterval?) {
         guard !finishing else { return }
+        observeCancellation()
         self.preview = preview
         guard getppid() == parentPID else { finish("parent-exited"); return }
         if !preview && !AXIsProcessTrusted() {
@@ -75,8 +86,6 @@ final class LockSession {
             self.reminder.show(preview: self.preview)
             if !self.reminder.isVisible { self.finish("reminder-unavailable") }
         })
-        observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.willSleepNotification, object: nil, queue: .main) { [weak self] _ in self?.finish("system-sleep") })
-        observers.append(NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.sessionDidResignActiveNotification, object: nil, queue: .main) { [weak self] _ in self?.finish("session-inactive") })
         for number in [SIGINT, SIGTERM, SIGHUP] {
             signal(number, SIG_IGN)
             let handler = DispatchSource.makeSignalSource(signal: number, queue: .main)

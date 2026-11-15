@@ -81,3 +81,10 @@ Use `npm run start:test` initially. Its menu explicitly identifies the thirty-se
 External keyboard/mouse and multiple-monitor checks remain deferred from milestone 2. Packaged-app identity, signing/notarization, and older OS/hardware validation remain release gates.
 
 Protocol details: [HELPER-PROTOCOL.md](HELPER-PROTOCOL.md).
+
+## Post-merge review fixes — 2026-11-15
+
+- Native cancellation observers are installed before preparation starts (and idempotently for direct begin calls). Sleep or session deactivation now finishes the helper and invalidates its preparation timer without relying on Electron cancellation.
+- Preserved the agreed shortcut-only start design. If registration fails, the menu explains that the conflicting binding must be released and offers Retry start shortcut; the app also retries every three seconds. Registration recovery never starts a session itself. This is recovery after the conflict is removed, not an alternative start path while another app still owns the shortcut.
+- Validation: native build, 26 JavaScript tests, and ten native integration tests passed. New tests exercise both retry paths with a simulated registration conflict, and send local sleep/session-deactivation notifications through the real native preparation path in nonblocking preview mode. Both native cases exited before locking with the expected reason and zero locked duration.
+- Actual OS shortcut contention and physical sleep during the countdown remain manual follow-up checks; the tests do not put the Mac to sleep or intercept input.
