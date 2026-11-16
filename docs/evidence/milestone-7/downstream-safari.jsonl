@@ -1,0 +1,8 @@
+{"durationSeconds":10,"event":"probe-locked"}
+{"enabled":true,"event":"tap-check","seconds":2,"suppressedEvents":0}
+{"command":"toggle-play-pause","event":"dispatched","frontmost":"com.apple.finder","location":0,"playbackConfirmed":false}
+{"enabled":true,"event":"tap-check","seconds":4,"suppressedEvents":3}
+{"command":"toggle-play-pause","event":"dispatched","frontmost":"com.apple.finder","location":2,"playbackConfirmed":false}
+{"enabled":true,"event":"tap-check","seconds":6,"suppressedEvents":3}
+{"command":"toggle-play-pause","event":"dispatched","frontmost":"com.apple.finder","location":2,"playbackConfirmed":false}
+{"event":"finished","reason":"test-ended","suppressedEvents":3}

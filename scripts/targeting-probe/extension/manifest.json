@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "PaperMode Targeting Probe (QA only)",
+  "version": "0.1.0",
+  "description": "Isolated exact-video playback feasibility experiment. No PaperMode integration.",
+  "permissions": ["scripting", "storage"],
+  "host_permissions": [
+    "https://example.invalid/*",
+    "https://app.tpstreams.com/*",
+    "https://www.youtube.com/*"
+  ],
+  "action": {"default_popup": "popup.html", "default_title": "Targeting Probe — QA only"}
+}

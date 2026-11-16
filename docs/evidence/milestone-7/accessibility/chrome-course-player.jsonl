@@ -1,0 +1,3 @@
+{"browser":"chrome","candidates":[{"label":"Play Play","path":"window.0.0.0.0.0.0.1.0.0.0.1.0.0.0.1.0.1.0.3.0","state":"paused"}],"event":"inspection","visited":382}
+{"after":"paused","axResult":0,"before":"paused","event":"first-action","label":"Play Play"}
+{"event":"unconfirmed","reason":"no-state-transition-on-retained-element","restoreAttempted":false}

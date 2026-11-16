@@ -1,0 +1,8 @@
+{"durationSeconds":10,"event":"probe-locked"}
+{"enabled":true,"event":"tap-check","seconds":2,"suppressedEvents":34}
+{"command":"toggle-play-pause","event":"dispatched","frontmost":"unknown","location":0,"playbackConfirmed":false}
+{"enabled":true,"event":"tap-check","seconds":4,"suppressedEvents":73}
+{"command":"toggle-play-pause","event":"dispatched","frontmost":"unknown","location":0,"playbackConfirmed":false}
+{"enabled":true,"event":"tap-check","seconds":6,"suppressedEvents":77}
+{"command":"toggle-play-pause","event":"dispatched","frontmost":"unknown","location":0,"playbackConfirmed":false}
+{"event":"finished","forwardedProbeEvents":4,"reason":"test-ended","suppressedEvents":97}

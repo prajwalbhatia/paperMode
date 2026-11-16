@@ -1,0 +1,13 @@
+{"id": "chrome-a", "event": "loadedmetadata", "paused": true, "time": 0, "visible": "visible", "focus": true, "at": 1794824728625}
+{"id": "chrome-a", "event": "play", "paused": false, "time": 0, "visible": "visible", "focus": true, "at": 1794824734300}
+{"id": "chrome-a", "event": "visibility", "paused": false, "time": 0.305201, "visible": "hidden", "focus": false, "at": 1794824734683}
+{"id": "chrome-b", "event": "loadedmetadata", "paused": true, "time": 0, "visible": "visible", "focus": true, "at": 1794824735062}
+{"id": "chrome-b", "event": "play", "paused": false, "time": 0.002698, "visible": "visible", "focus": true, "at": 1794824742467}
+{"id": "chrome-b", "event": "visibility", "paused": false, "time": 3.836162, "visible": "hidden", "focus": false, "at": 1794824746365}
+{"id": "chrome-a", "event": "visibility", "paused": false, "time": 1.668019, "visible": "visible", "focus": false, "at": 1794824746368}
+{"id": "chrome-b", "event": "remote-pause", "paused": false, "time": 2.479351, "visible": "hidden", "focus": false, "at": 1794824755336}
+{"id": "chrome-b", "event": "pause", "paused": true, "time": 2.479562, "visible": "hidden", "focus": false, "at": 1794824755337}
+{"id": "chrome-b", "event": "remote-play", "paused": true, "time": 2.479562, "visible": "hidden", "focus": false, "at": 1794824776165}
+{"id": "chrome-b", "event": "play", "paused": false, "time": 2.479567, "visible": "hidden", "focus": false, "at": 1794824776166}
+{"id": "chrome-b", "event": "remote-pause", "paused": false, "time": 4.443222, "visible": "hidden", "focus": false, "at": 1794824778265}
+{"id": "chrome-b", "event": "pause", "paused": true, "time": 4.443578, "visible": "hidden", "focus": false, "at": 1794824778266}

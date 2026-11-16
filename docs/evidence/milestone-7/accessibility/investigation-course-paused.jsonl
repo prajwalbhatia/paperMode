@@ -1,0 +1,11 @@
+{"actions":["AXPress","AXShowMenu","AXScrollToVisible"],"event":"control-found","hasWebAncestor":true,"label":"Play Play"}
+{"browser":"chrome","candidates":[{"label":"Play Play","path":"window.0.0.0.0.0.0.1.0.0.0.1.0.0.0.1.0.1.0.3.0","state":"paused"}],"event":"inspection","visited":380}
+{"enabled":true,"event":"input-filter-enabled"}
+{"browserActive":true,"event":"action-context","frontmostBundle":"com.google.Chrome"}
+{"elapsedMilliseconds":101,"event":"state-observed","state":"playing"}
+{"after":"playing","axResult":0,"before":"paused","event":"first-action","label":"Pause Pause"}
+{"enabled":true,"event":"tap-check-after-first"}
+{"elapsedMilliseconds":101,"event":"state-observed","state":"paused"}
+{"axResult":0,"event":"second-action","restoredByLabel":true,"state":"paused"}
+{"enabled":true,"event":"tap-check-before-release","eventTypes":{},"suppressedEvents":0}
+{"event":"input-filter-released"}

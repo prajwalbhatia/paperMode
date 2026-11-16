@@ -1,0 +1,7 @@
+{"browser":"chrome","candidates":[{"label":"Pause Pause","path":"window.0.0.0.0.0.0.1.0.0.0.1.0.0.0.1.0.1.0.3.0","state":"playing"}],"event":"inspection","visited":393}
+{"enabled":true,"event":"input-filter-enabled"}
+{"after":"playing","axResult":0,"before":"playing","event":"first-action","label":"Pause Pause"}
+{"enabled":true,"event":"tap-check-after-first"}
+{"event":"unconfirmed","reason":"no-state-transition-on-retained-element","restoreAttempted":false}
+{"enabled":true,"event":"tap-check-before-release","suppressedEvents":0}
+{"event":"input-filter-released"}

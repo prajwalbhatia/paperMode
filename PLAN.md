@@ -12,7 +12,9 @@
 
 ## Goal
 
-Future milestone 7 is reserved for deliberate play/pause while input remains locked. It is planned only; implementation is not authorized yet and it does not expand the current release scope.
+Milestone 7 feasibility is active on `milestone-7-playback-feasibility`, after milestone 5 merged. The agreed sequence is milestone 5 → milestone 7 → milestone 6. Product implementation awaits the feasibility review; release preparation will follow playback work. See `docs/MILESTONE-7-FEASIBILITY.md`.
+
+The isolated native probe delivered pause/resume to Chrome and Safari fixtures while its input tap remained enabled. User physical F8 tests passed in both browsers, including full screen and a three-minute pause. Intended-course routing, broader contention, and product integration remain open; this is not a full milestone acceptance pass.
 
 Let someone place a notebook over a MacBook's keyboard and trackpad while watching a course. The video and sound continue without dimming or blur. A small unlock reminder is the only content PaperMode places above the course.
 
@@ -81,7 +83,7 @@ Add a README with install/use/uninstall instructions, a short demo, supported ve
 
 Done when the release files and documentation are reviewable. Creating a public repository, choosing the final license, and publishing are separate release actions to settle with the owner.
 
-### 7. Explore and add play/pause while locked — deferred
+### 7. Play/pause while locked — implementation and acceptance
 
 Let the user briefly lift the notebook, deliberately pause or resume the course, and continue writing without unlocking and relocking. Keep the existing two-second unlock chord unchanged. Start with play/pause only; rewind, remote controls, and hands-free operation are outside this milestone.
 
@@ -99,7 +101,7 @@ Test both browsers against the user's actual course platforms, recording browser
 
 **Phase B — implementation, only after approval:** choose a deliberate chord distinct from unlock, show it in the reminder, and debounce it so one deliberate activation causes one action. Control + Option + Command + Space and a short hold are candidates, not settled decisions. Deliver playback control without temporarily disabling the input lock or allowing notebook-generated input through. Give accurate feedback: do not claim playback changed unless it can be confirmed. Preserve all existing unlock and failure-recovery behavior.
 
-Done when the agreed Chrome/Safari compatibility matrix passes, the intended course is controlled consistently within the documented support scope, ordinary input remains blocked throughout, and regression tests confirm unlock and recovery still work. Until then this remains a deferred feature, separate from milestones 4–6.
+Done when the agreed Chrome/Safari compatibility matrix passes, the intended course is controlled consistently within the documented support scope, ordinary input remains blocked throughout, and regression tests confirm unlock and recovery still work. Owner authorized native Accessibility implementation on 2026-11-16. Implemented as experimental with no global fallback; acceptance gates remain before milestone 6.
 
 Research references (feasibility review, 2026-11-15):
 

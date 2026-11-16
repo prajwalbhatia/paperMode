@@ -1,0 +1,10 @@
+{"actions":["AXPress","AXShowMenu","AXScrollToVisible"],"event":"control-found","hasWebAncestor":true,"label":"Play"}
+{"browser":"chrome","candidates":[{"label":"Play","path":"window.0.0.0.0.0.0.1.0.3","state":"paused"}],"event":"inspection","visited":162}
+{"enabled":true,"event":"input-filter-enabled"}
+{"browserActive":true,"event":"action-context","frontmostBundle":"com.google.Chrome"}
+{"elapsedMilliseconds":100,"event":"state-observed","state":"paused"}
+{"after":"paused","axResult":0,"before":"paused","event":"first-action","label":"Play"}
+{"enabled":true,"event":"tap-check-after-first"}
+{"event":"unconfirmed","reason":"no-state-transition-on-retained-element","restoreAttempted":false}
+{"enabled":true,"event":"tap-check-before-release","eventTypes":{},"suppressedEvents":0}
+{"event":"input-filter-released"}

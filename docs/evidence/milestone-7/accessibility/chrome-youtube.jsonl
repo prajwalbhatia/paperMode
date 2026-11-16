@@ -1,0 +1,3 @@
+{"browser":"chrome","candidates":[{"label":"Pause (k)","path":"window.0.0.0.0.0.0.1.0.0.1.1.1.0.3.0.0.0.1.0.1.0.0.0.4.1.0","state":"playing"}],"event":"inspection","visited":830}
+{"after":"paused","axResult":0,"before":"playing","event":"first-action","label":"Play keyboard shortcut k"}
+{"axResult":0,"event":"second-action","restoredByLabel":true,"state":"playing"}

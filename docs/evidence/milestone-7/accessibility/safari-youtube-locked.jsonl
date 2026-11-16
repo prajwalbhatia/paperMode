@@ -1,0 +1,7 @@
+{"browser":"safari","candidates":[{"label":"Play (k)","path":"window.0.2.0.0.0.0.1.5.1.0.4","state":"paused"}],"event":"inspection","visited":436}
+{"enabled":true,"event":"input-filter-enabled"}
+{"after":"playing","axResult":0,"before":"paused","event":"first-action","label":"Pause (k)"}
+{"enabled":true,"event":"tap-check-after-first"}
+{"axResult":0,"event":"second-action","restoredByLabel":true,"state":"paused"}
+{"enabled":true,"event":"tap-check-before-release","suppressedEvents":0}
+{"event":"input-filter-released"}

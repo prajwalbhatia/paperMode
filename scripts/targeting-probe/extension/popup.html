@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>Targeting Probe — QA only</title>
+<link rel="stylesheet" href="popup.css">
+<h1>Targeting Probe</h1>
+<p>QA only. Bind one video explicitly. Commands keep that target even when another tab is selected.</p>
+<button id="scan">Inspect selected tab</button>
+<div id="candidates"></div>
+<p id="target">No target selected</p>
+<button id="status">Read target state</button>
+<button id="pause">Pause target</button>
+<button id="play">Resume target</button>
+<button id="clear">Forget target</button>
+<pre id="result" aria-live="polite"></pre>
+<script type="module" src="popup.js"></script></html>

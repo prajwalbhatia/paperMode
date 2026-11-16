@@ -1,0 +1,7 @@
+{"actions":["AXPress","AXShowMenu","AXScrollToVisible"],"event":"control-found","hasWebAncestor":true,"label":"Play"}
+{"browser":"chrome","candidates":[{"label":"Play","path":"window.0.0.0.0.0.0.1.0.3","state":"paused"}],"event":"inspection","visited":162}
+{"browserActive":true,"event":"action-context","frontmostBundle":"com.google.Chrome"}
+{"elapsedMilliseconds":102,"event":"state-observed","state":"playing"}
+{"after":"playing","axResult":0,"before":"paused","event":"first-action","label":"Pause"}
+{"elapsedMilliseconds":105,"event":"state-observed","state":"paused"}
+{"axResult":0,"event":"second-action","restoredByLabel":true,"state":"paused"}

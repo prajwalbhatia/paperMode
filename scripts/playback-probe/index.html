@@ -1,0 +1,11 @@
+<!doctype html><meta charset="utf-8"><title>PaperMode playback probe</title>
+<h1 id="title"></h1><video controls loop width="640" src="sample.mp4"></video><pre id="status"></pre>
+<script>
+const id=new URLSearchParams(location.search).get('id')||'unknown';
+document.getElementById('title').textContent='PaperMode playback probe: '+id;
+const video=document.querySelector('video');
+function record(event){const data={id,event,paused:video.paused,time:video.currentTime,visible:document.visibilityState,focus:document.hasFocus(),at:Date.now()};document.getElementById('status').textContent=JSON.stringify(data,null,2);fetch('/event',{method:'POST',body:JSON.stringify(data)});}
+for(const e of ['play','pause','loadedmetadata'])video.addEventListener(e,()=>record(e));
+document.addEventListener('visibilitychange',()=>record('visibility'));
+if('mediaSession' in navigator){navigator.mediaSession.metadata=new MediaMetadata({title:'PaperMode probe '+id,artist:'Local QA'});navigator.mediaSession.setActionHandler('play',()=>{record('remote-play');video.play();});navigator.mediaSession.setActionHandler('pause',()=>{record('remote-pause');video.pause();});video.addEventListener('play',()=>navigator.mediaSession.playbackState='playing');video.addEventListener('pause',()=>navigator.mediaSession.playbackState='paused');}
+</script>

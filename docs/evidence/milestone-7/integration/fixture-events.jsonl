@@ -1,0 +1,10 @@
+{"received": 1794849194.568703, "run": "integrated", "mode": "normal", "event": "ready", "clicks": 0, "paused": true, "currentTime": 0, "label": "Play"}
+{"received": 1794849358.860826, "run": "integrated", "mode": "normal", "event": "click", "clicks": 1, "paused": true, "currentTime": 0, "label": "Play", "trusted": true}
+{"received": 1794849358.862201, "run": "integrated", "mode": "normal", "event": "play", "clicks": 1, "paused": false, "currentTime": 0.000709, "label": "Play"}
+{"received": 1794849358.862606, "run": "integrated", "mode": "normal", "event": "label-updated", "clicks": 1, "paused": false, "currentTime": 0.000906, "label": "Pause"}
+{"received": 1794849358.863539, "run": "integrated", "mode": "normal", "event": "action-applied", "clicks": 1, "paused": false, "currentTime": 0.000906, "label": "Play"}
+{"received": 1794849358.863751, "run": "integrated", "mode": "normal", "event": "playing", "clicks": 1, "paused": false, "currentTime": 0.000851, "label": "Play"}
+{"received": 1794849359.936779, "run": "integrated", "mode": "normal", "event": "click", "clicks": 2, "paused": false, "currentTime": 1.074775, "label": "Pause", "trusted": true}
+{"received": 1794849359.937218, "run": "integrated", "mode": "normal", "event": "action-applied", "clicks": 2, "paused": true, "currentTime": 1.075137, "label": "Pause"}
+{"received": 1794849359.937521, "run": "integrated", "mode": "normal", "event": "label-updated", "clicks": 2, "paused": true, "currentTime": 1.075137, "label": "Play"}
+{"received": 1794849359.937846, "run": "integrated", "mode": "normal", "event": "pause", "clicks": 2, "paused": true, "currentTime": 1.075137, "label": "Play"}

@@ -1,0 +1,30 @@
+<!doctype html><meta charset="utf-8"><title>PaperMode isolated playback fixture</title>
+<style>body{font:20px system-ui;margin:40px;background:#17212b;color:white}video{width:480px;display:block}button{font:24px system-ui;padding:20px}pre{white-space:pre-wrap}</style>
+<h1>Isolated playback fixture</h1><p id="mode"></p><video muted playsinline></video><button aria-label="Play">Play</button><pre id="status"></pre>
+<script>
+const mode = new URLSearchParams(location.search).get('mode') || 'normal';
+const run = new URLSearchParams(location.search).get('run') || 'manual';
+document.querySelector('#mode').textContent = `Mode: ${mode}; run: ${run}`;
+const video = document.querySelector('video'), button = document.querySelector('button');
+const canvas = document.createElement('canvas'); canvas.width=480;canvas.height=270;
+const ctx=canvas.getContext('2d');
+function draw(t){ctx.fillStyle='#234';ctx.fillRect(0,0,480,270);ctx.fillStyle='white';ctx.font='28px sans-serif';ctx.fillText(`Local frames ${Math.round(t)}`,20,130);requestAnimationFrame(draw)}
+requestAnimationFrame(draw);video.srcObject=canvas.captureStream(15);
+let clicks=0;
+function report(event, extra={}) {
+ const data={run,mode,event,clicks,paused:video.paused,currentTime:video.currentTime,label:button.textContent,...extra};
+ document.querySelector('#status').textContent=JSON.stringify(data,null,2);
+ fetch('/event',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}).catch(()=>{});
+}
+function updateLabel(){button.textContent=video.paused?'Play':'Pause';button.setAttribute('aria-label',button.textContent);report('label-updated')}
+button.addEventListener('click',async e=>{
+ clicks++;report('click',{trusted:e.isTrusted});
+ if(mode==='noop'){report('intentionally-ignored');return;}
+ try {if(video.paused)await video.play();else video.pause();report('action-applied');
+ if(mode==='delayed-label')setTimeout(updateLabel,4500);else updateLabel();
+ }catch(e){report('play-rejected',{error:e.name})}
+});
+for(const event of ['play','playing','pause'])video.addEventListener(event,()=>report(event));
+setInterval(()=>report('sample'),500);
+report('ready');
+</script>

@@ -95,3 +95,39 @@ check(probeCallbacks == 1, "overlapping checks do not launch a second probe")
 repeatedProbe.start { _ in probeCallbacks += 1 }
 pump(until: { probeCallbacks == 2 })
 check(probeCallbacks == 2, "subsequent permission checks can run after completion")
+
+var playbackKey = PlaybackPolicy()
+check(playbackKey.update(down: true, modifiers: true, repeated: false), "playback chord fires once")
+check(!playbackKey.update(down: true, modifiers: true, repeated: true), "playback autorepeat does not toggle again")
+check(!playbackKey.update(down: true, modifiers: true, repeated: false), "duplicate down does not toggle again")
+check(!playbackKey.update(down: false, modifiers: true, repeated: false), "release does not toggle")
+check(!playbackKey.update(down: true, modifiers: false, repeated: false), "plain space does not control playback")
+check(!playbackKey.update(down: true, modifiers: true, repeated: false), "adding modifiers to held space does not toggle")
+_ = playbackKey.update(down: false, modifiers: false, repeated: false)
+check(playbackKey.update(down: true, modifiers: true, repeated: false), "fresh playback chord can toggle again")
+check(PlaybackPolicy.isPlayerLabel("Pause keyboard shortcut k"), "observed YouTube label accepted")
+check(PlaybackPolicy.isPlayerLabel("Play Play"), "observed course label accepted")
+for label in ["Play/Pause", "Play next", "Replay", "Autoplay", "Play all", "Play playlist"] {
+    check(!PlaybackPolicy.isPlayerLabel(label), "ambiguous/non-player label rejected: \(label)")
+}
+
+check(PlaybackReadiness.decide(cancelled: false, sameTarget: true, actionable: false, now: 1, deadline: 3) == .wait, "transient missing action waits without toggling")
+check(PlaybackReadiness.decide(cancelled: false, sameTarget: true, actionable: true, now: 2, deadline: 3) == .ready, "same player becomes ready during countdown")
+check(PlaybackReadiness.decide(cancelled: false, sameTarget: false, actionable: true, now: 2, deadline: 3) == .stop, "readiness cannot retarget a changed player")
+check(PlaybackReadiness.decide(cancelled: true, sameTarget: true, actionable: true, now: 2, deadline: 3) == .stop, "cancellation wins over readiness")
+check(PlaybackReadiness.decide(cancelled: false, sameTarget: true, actionable: false, now: 3, deadline: 3) == .stop, "permanent missing action ends readiness wait")
+
+check(!PlaybackPolicy.isUniqueMediaControl(count: 1, supportedDocument: false, hasContainer: false, hasTimeline: false), "unrelated Play button is not a media player")
+check(!PlaybackPolicy.isUniqueMediaControl(count: 1, supportedDocument: true, hasContainer: false, hasTimeline: true), "page-level timeline cannot qualify an unrelated button")
+check(!PlaybackPolicy.isUniqueMediaControl(count: 2, supportedDocument: true, hasContainer: true, hasTimeline: true), "second player-like control remains ambiguous even if non-actionable or URL-less")
+check(PlaybackPolicy.isUniqueMediaControl(count: 1, supportedDocument: true, hasContainer: true, hasTimeline: true), "unique supported media control has required structural evidence")
+for url in ["https://example.com/watch?v=abc", "https://www.youtube.com.evil.test/watch?v=abc", "https://www.youtube.com/", "https://www.youtube.com/playlist?list=abc", "http://www.youtube.com/watch?v=abc", "https://www.youtube.com@evil.test/watch?v=abc"] {
+    check(!PlaybackPolicy.isSupportedPlayerDocument(url), "reject unsupported/spoofed player document: \(url)")
+}
+check(PlaybackPolicy.isSupportedPlayerDocument("https://www.youtube.com/watch?v=abc"), "YouTube video document supported")
+check(PlaybackPolicy.isSupportedPlayerDocument("https://app.tpstreams.com/embed/account/video/?token=test"), "TPStreams embed document supported")
+check(PlaybackBudget.timeout(now: 10, deadline: 9) == nil, "expired queued request has no AX budget")
+check(PlaybackBudget.timeout(now: 10, deadline: 10) == nil, "deadline boundary disallows an AX call")
+check(abs(Double(PlaybackBudget.timeout(now: 10, deadline: 10.02)!) - 0.02) < 0.000001, "child-object timeout shrinks to remaining budget")
+check(PlaybackBudget.timeout(now: 10, deadline: 20) == Float(0.15), "all queried objects use the per-call cap")
+check(PlaybackReadiness.decide(cancelled: false, sameTarget: true, actionable: true, now: 4, deadline: 3) == .stop, "late readiness cannot authorize expired work")

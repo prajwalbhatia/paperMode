@@ -1,0 +1,5 @@
+{"browser":"chrome","candidates":[{"label":"Pause keyboard shortcut k","path":"window.0.0.0.0.0.0.1.0.0.1.1.1.0.3.0.0.0.1.0.1.0.0.0.4.1.0","state":"playing"}],"event":"inspection","visited":829}
+{"enabled":true,"event":"input-filter-enabled"}
+{"after":"playing","axResult":0,"before":"playing","event":"first-action","label":"Pause keyboard shortcut k"}
+{"enabled":true,"event":"tap-check-after-first"}
+{"event":"unconfirmed","reason":"no-state-transition-on-retained-element","restoreAttempted":false}

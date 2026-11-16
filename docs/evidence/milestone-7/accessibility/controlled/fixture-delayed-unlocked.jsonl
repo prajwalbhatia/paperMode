@@ -1,0 +1,6 @@
+{"actions":["AXPress","AXShowMenu","AXScrollToVisible"],"event":"control-found","hasWebAncestor":true,"label":"Play"}
+{"browser":"chrome","candidates":[{"label":"Play","path":"window.0.0.0.0.0.0.1.0.3","state":"paused"}],"event":"inspection","visited":163}
+{"browserActive":false,"event":"action-context","frontmostBundle":"org.mozilla.firefox"}
+{"elapsedMilliseconds":100,"event":"state-observed","state":"paused"}
+{"after":"paused","axResult":0,"before":"paused","event":"first-action","label":"Play"}
+{"event":"unconfirmed","reason":"no-state-transition-on-retained-element","restoreAttempted":false}
