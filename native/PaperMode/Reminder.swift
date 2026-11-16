@@ -8,9 +8,9 @@ final class Reminder {
         close()
         for screen in NSScreen.screens {
             let area = screen.visibleFrame
-            let width = min(CGFloat(332), area.width - 24)
+            let width = min(CGFloat(360), area.width - 24)
             let panel = NSPanel(
-                contentRect: NSRect(x: area.maxX - width - 12, y: area.maxY - 160, width: width, height: 144),
+                contentRect: NSRect(x: area.maxX - width - 12, y: area.maxY - 238, width: width, height: 222),
                 styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
             panel.level = .screenSaver
             panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
@@ -70,49 +70,39 @@ final class ReminderCard: NSView {
 
     init(width: CGFloat, preview: Bool, preparingSeconds: Int? = nil) {
         self.preview = preview
-        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 144))
+        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 222))
         wantsLayer = true
         layer?.backgroundColor = NSColor(srgbRed: 0.10, green: 0.11, blue: 0.13, alpha: 0.98).cgColor
         layer?.cornerRadius = 16
         layer?.borderWidth = 1
         layer?.borderColor = NSColor.white.withAlphaComponent(0.15).cgColor
-
         let accent = NSColor(srgbRed: 0.96, green: 0.78, blue: 0.43, alpha: 1)
-        let icon = NSImageView(frame: NSRect(x: 14, y: 76, width: 28, height: 28))
+        let icon = NSImageView(frame: NSRect(x: 14, y: 182, width: 28, height: 28))
         icon.image = Self.brandIcon
         icon.imageScaling = .scaleProportionallyUpOrDown
         addSubview(icon)
-        label("PaperMode", frame: NSRect(x: 50, y: 80, width: 110, height: 20), size: 14, weight: .semibold, color: .white)
+        label("PaperMode", frame: NSRect(x: 50, y: 186, width: 110, height: 20), size: 14, weight: .semibold, color: .white)
         let status = preparingSeconds != nil ? "STARTING" : (preview ? "PREVIEW" : "LOCKED")
-        label(status, frame: NSRect(x: width - 94, y: 83, width: 78, height: 16), size: 10, weight: .semibold, color: accent, alignment: .right)
+        label(status, frame: NSRect(x: width - 94, y: 189, width: 78, height: 16), size: 10, weight: .semibold, color: accent, alignment: .right)
 
-        let keys: [(String, CGFloat)] = [("⌃ Control", 77), ("⌥ Option", 77), ("⌘ Cmd", 70), ("L", 34)]
-        var x: CGFloat = 16
-        let scale = min(1, (width - 32) / 276)
-        for (key, keyWidth) in keys {
-            let capWidth = keyWidth * scale
-            let cap = NSView(frame: NSRect(x: x, y: 39, width: capWidth, height: 29))
-            cap.wantsLayer = true
-            cap.layer?.cornerRadius = 6
-            cap.layer?.backgroundColor = (key == "L" ? accent : NSColor.white.withAlphaComponent(0.08)).cgColor
-            cap.layer?.borderWidth = 1
-            cap.layer?.borderColor = NSColor.white.withAlphaComponent(0.12).cgColor
-            let text = NSTextField(labelWithString: key)
-            text.font = .systemFont(ofSize: 12, weight: .medium)
-            text.textColor = key == "L" ? NSColor.black : .white
-            text.alignment = .center
-            text.frame = NSRect(x: 0, y: 6, width: capWidth, height: 17)
-            cap.addSubview(text)
-            addSubview(cap)
-            cap.isHidden = preparingSeconds != nil
-            x += capWidth + 6 * scale
+        // Persistent shortcut rows are separate from changing status feedback.
+        if preparingSeconds == nil {
+            label("UNLOCK", frame: NSRect(x: 16, y: 161, width: 90, height: 15), size: 10, weight: .semibold, color: accent)
+            keyRow(last: "L", y: 127, width: width, accent: accent)
+            label("PLAY / PAUSE", frame: NSRect(x: 16, y: 73, width: 120, height: 15), size: 10, weight: .semibold, color: accent)
+            label("Press once", frame: NSRect(x: width - 110, y: 73, width: 94, height: 15), size: 10, weight: .medium, color: .white.withAlphaComponent(0.7), alignment: .right)
+            keyRow(last: "Space", y: 39, width: width, accent: accent)
+            let divider = NSView(frame: NSRect(x: 16, y: 94, width: width - 32, height: 1))
+            divider.wantsLayer = true
+            divider.layer?.backgroundColor = NSColor.white.withAlphaComponent(0.12).cgColor
+            addSubview(divider)
         }
         hint.stringValue = preview ? "Input stays active during this preview" : "Hold all four keys for 2 seconds to unlock"
-        hint.frame = NSRect(x: 16, y: 13, width: width - 32, height: 17)
+        hint.frame = NSRect(x: 16, y: 106, width: width - 32, height: 17)
         hint.font = .systemFont(ofSize: 11)
         hint.textColor = NSColor.white.withAlphaComponent(0.72)
         addSubview(hint)
-        progressTrack.frame = NSRect(x: 16, y: 6, width: width - 32, height: 3)
+        progressTrack.frame = NSRect(x: 16, y: 101, width: width - 32, height: 3)
         progressTrack.wantsLayer = true
         progressTrack.layer?.cornerRadius = 1.5
         progressTrack.layer?.backgroundColor = NSColor.white.withAlphaComponent(0.12).cgColor
@@ -122,19 +112,41 @@ final class ReminderCard: NSView {
         progressTrack.addSubview(progressFill)
         progressTrack.isHidden = true
         addSubview(progressTrack)
-        preparation.frame = NSRect(x: 16, y: 39, width: width - 32, height: 29)
+        preparation.frame = NSRect(x: 16, y: 132, width: width - 32, height: 29)
         preparation.font = .systemFont(ofSize: 20, weight: .semibold)
         preparation.textColor = .white
         preparation.isHidden = preparingSeconds == nil
         addSubview(preparation)
-        for view in subviews { view.frame.origin.y += 28 }
-        playback.frame = NSRect(x: 16, y: 9, width: width - 32, height: 17)
-        playback.font = .systemFont(ofSize: 10)
+        playback.frame = NSRect(x: 16, y: 13, width: width - 32, height: 17)
+        playback.font = .systemFont(ofSize: 11)
         playback.textColor = NSColor.white.withAlphaComponent(0.72)
-        playback.stringValue = preview ? "⌃⌥⌘ Space · request play/pause" : "Play/pause availability checked at start"
+        playback.stringValue = preview ? "Request playback without unlocking" : "Checking player availability…"
         playback.isHidden = preparingSeconds != nil
         addSubview(playback)
         if let preparingSeconds { updatePreparation(seconds: preparingSeconds) }
+    }
+
+    private func keyRow(last: String, y: CGFloat, width: CGFloat, accent: NSColor) {
+        let keys: [(String, CGFloat)] = [("⌃ Control", 77), ("⌥ Option", 77), ("⌘ Cmd", 70), (last, 64)]
+        let scale = min(1, (width - 32) / 306)
+        var x: CGFloat = 16
+        for (key, keyWidth) in keys {
+            let capWidth = keyWidth * scale
+            let cap = NSView(frame: NSRect(x: x, y: y, width: capWidth, height: 29))
+            cap.wantsLayer = true
+            cap.layer?.cornerRadius = 6
+            cap.layer?.backgroundColor = (key == last ? accent : NSColor.white.withAlphaComponent(0.08)).cgColor
+            cap.layer?.borderWidth = 1
+            cap.layer?.borderColor = NSColor.white.withAlphaComponent(0.12).cgColor
+            let text = NSTextField(labelWithString: key)
+            text.font = .systemFont(ofSize: 12, weight: .medium)
+            text.textColor = key == last ? .black : .white
+            text.alignment = .center
+            text.frame = NSRect(x: 0, y: 6, width: capWidth, height: 17)
+            cap.addSubview(text)
+            addSubview(cap)
+            x += capWidth + 6 * scale
+        }
     }
 
     func updatePreparation(seconds: Int) {

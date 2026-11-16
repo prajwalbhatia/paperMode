@@ -47,7 +47,7 @@ final class LockSession {
             playbackBound = true
             playback.bind { [weak self] available in
                 guard let self, !self.finishing else { return }
-                self.playbackHint = available ? "⌃⌥⌘ Space · request play/pause" : "Play/pause unavailable · unlock to control"
+                self.playbackHint = available ? "Ready · request playback without unlocking" : "Play/pause unavailable · unlock to control"
                 if self.active { self.reminder.updatePlayback(self.playbackHint) }
             }
         }
@@ -79,7 +79,7 @@ final class LockSession {
             playbackBound = true
             playback.bind { [weak self] available in
                 guard let self, !self.finishing else { return }
-                self.playbackHint = available ? "⌃⌥⌘ Space · request play/pause" : "Play/pause unavailable · unlock to control"
+                self.playbackHint = available ? "Ready · request playback without unlocking" : "Play/pause unavailable · unlock to control"
                 self.reminder.updatePlayback(self.playbackHint)
             }
         }
