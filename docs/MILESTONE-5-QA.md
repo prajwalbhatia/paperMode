@@ -1,5 +1,12 @@
 # Milestone 5: local packaged release
 
+## Review fixes — 2026-11-16
+
+- The verifier now checks the resource helper's strict code signature and `papermode-helper` identifier explicitly, independently of deep app verification.
+- It discovers Mach-O files throughout Contents (including nested Electron helper apps, frameworks, libraries, and tools) and requires ARM64 for each. Framework symlink aliases are skipped; real version-directory binaries are inspected.
+- It compares the archive's source-file inventory with the checkout in both directions, rejecting stale extra modules as well as missing files, then retains the existing byte checks.
+- All 39 JavaScript tests passed. Regression tests cover invalid helper signatures/wrong identifiers, nested architecture mismatches, and extra/missing source files. Command failures are simulated in the negative unit cases; existing installed and build artifacts both passed real verification of 15 Mach-O binaries and nine source files. No rebuild or permission change was needed for these checker-only changes.
+
 Status: started. Package structure and non-locking startup passed on the development Mac. Installed-app permission identity and interactive acceptance remain pending. This is not a public release.
 
 ## Repeatable checks
