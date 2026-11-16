@@ -9,8 +9,9 @@ final class Reminder {
         for screen in NSScreen.screens {
             let area = screen.visibleFrame
             let width = min(CGFloat(360), area.width - 24)
+            let height = ReminderCard.height(preparing: preparingSeconds != nil)
             let panel = NSPanel(
-                contentRect: NSRect(x: area.maxX - width - 12, y: area.maxY - 238, width: width, height: 222),
+                contentRect: NSRect(x: area.maxX - width - 12, y: area.maxY - height - 16, width: width, height: height),
                 styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
             panel.level = .screenSaver
             panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
@@ -52,6 +53,7 @@ final class Reminder {
 
 /// A compact reminder card; only this rectangle is painted over the course.
 final class ReminderCard: NSView {
+    static func height(preparing: Bool) -> CGFloat { preparing ? 136 : 222 }
     private static let brandIcon: NSImage? = {
         // The build and packager place this beside the standalone helper, so
         // artwork lookup does not depend on the launcher's working directory.
@@ -70,20 +72,21 @@ final class ReminderCard: NSView {
 
     init(width: CGFloat, preview: Bool, preparingSeconds: Int? = nil) {
         self.preview = preview
-        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 222))
+        let height = Self.height(preparing: preparingSeconds != nil)
+        super.init(frame: NSRect(x: 0, y: 0, width: width, height: height))
         wantsLayer = true
         layer?.backgroundColor = NSColor(srgbRed: 0.10, green: 0.11, blue: 0.13, alpha: 0.98).cgColor
         layer?.cornerRadius = 16
         layer?.borderWidth = 1
         layer?.borderColor = NSColor.white.withAlphaComponent(0.15).cgColor
         let accent = NSColor(srgbRed: 0.96, green: 0.78, blue: 0.43, alpha: 1)
-        let icon = NSImageView(frame: NSRect(x: 14, y: 182, width: 28, height: 28))
+        let icon = NSImageView(frame: NSRect(x: 14, y: height - 40, width: 28, height: 28))
         icon.image = Self.brandIcon
         icon.imageScaling = .scaleProportionallyUpOrDown
         addSubview(icon)
-        label("PaperMode", frame: NSRect(x: 50, y: 186, width: 110, height: 20), size: 14, weight: .semibold, color: .white)
+        label("PaperMode", frame: NSRect(x: 50, y: height - 36, width: 110, height: 20), size: 14, weight: .semibold, color: .white)
         let status = preparingSeconds != nil ? "STARTING" : (preview ? "PREVIEW" : "LOCKED")
-        label(status, frame: NSRect(x: width - 94, y: 189, width: 78, height: 16), size: 10, weight: .semibold, color: accent, alignment: .right)
+        label(status, frame: NSRect(x: width - 94, y: height - 33, width: 78, height: 16), size: 10, weight: .semibold, color: accent, alignment: .right)
 
         // Persistent shortcut rows are separate from changing status feedback.
         if preparingSeconds == nil {
@@ -98,7 +101,7 @@ final class ReminderCard: NSView {
             addSubview(divider)
         }
         hint.stringValue = preview ? "Input stays active during this preview" : "Hold all four keys for 2 seconds to unlock"
-        hint.frame = NSRect(x: 16, y: 106, width: width - 32, height: 17)
+        hint.frame = NSRect(x: 16, y: preparingSeconds != nil ? 20 : 106, width: width - 32, height: 17)
         hint.font = .systemFont(ofSize: 11)
         hint.textColor = NSColor.white.withAlphaComponent(0.72)
         addSubview(hint)
@@ -112,7 +115,7 @@ final class ReminderCard: NSView {
         progressTrack.addSubview(progressFill)
         progressTrack.isHidden = true
         addSubview(progressTrack)
-        preparation.frame = NSRect(x: 16, y: 132, width: width - 32, height: 29)
+        preparation.frame = NSRect(x: 16, y: 46, width: width - 32, height: 29)
         preparation.font = .systemFont(ofSize: 20, weight: .semibold)
         preparation.textColor = .white
         preparation.isHidden = preparingSeconds == nil
