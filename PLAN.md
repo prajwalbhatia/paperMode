@@ -79,6 +79,8 @@ Done when a packaged app passes the acceptance checks below, including recovery 
 
 ### 6. Prepare the open-source release
 
+Status: in progress on `codex/milestone-6-release-preparation`. MIT approved by the owner on 2026-11-17. Local archive tooling and release documentation are being prepared; demo, final-artifact acceptance, signing decision, and public release approval remain open.
+
 Add a README with install/use/uninstall instructions, a short demo, supported versions, known limitations, and contribution instructions. Choose an open-source license with the owner. Prepare a versioned ZIP/DMG and checksums for GitHub Releases. Decide on Developer ID signing/notarization before a public download; document the actual signing status accurately.
 
 Done when the release files and documentation are reviewable. Creating a public repository, choosing the final license, and publishing are separate release actions to settle with the owner.

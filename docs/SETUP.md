@@ -22,7 +22,7 @@ Generated native executables and npm caches are under `.build/` and ignored by G
 
 The native helper now also supports explicit permission, preview, and lock commands. See `docs/MILESTONE-2-QA.md` before running a lock test. The diagnostic command never intercepts input. The JavaScript process executes the helper with an argument array and a five-second diagnostic timeout. This timeout is for the setup check, not a PaperMode session timer.
 
-Public signing, notarization, Intel packaging, older macOS validation, and packaged lock validation are later milestones. A project license has not yet been selected.
+Public signing, notarization, Intel packaging, older macOS validation, and packaged lock validation are later milestones. PaperMode uses the MIT license, selected by the owner on 2026-11-17. See ../LICENSE.
 
 ## Milestone 1 verification — 2026-11-14
 

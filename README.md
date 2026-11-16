@@ -2,7 +2,19 @@
 
 A macOS menu bar utility for watching courses while taking handwritten notes on a notebook resting over your laptop keyboard.
 
-The Electron menu bar app and native input lock have passed core development-Mac QA. Experimental native play/pause is implemented; its integrated physical-shortcut and packaged runtime checks remain before release. See [packaged QA](docs/MILESTONE-5-QA.md), [UX QA](docs/MILESTONE-4-QA.md), [app QA results](docs/MILESTONE-3-QA.md), [native QA results](docs/MILESTONE-2-QA.md), and [PLAN.md](PLAN.md).
+The Electron menu bar app and native input lock have passed core development-Mac QA. Experimental native play/pause passed owner-confirmed pause/resume/unlock checks on the rebuilt app in Chrome YouTube, Safari YouTube, and Chrome course player. Broader final-artifact acceptance remains before release. See [packaged QA](docs/MILESTONE-5-QA.md), [UX QA](docs/MILESTONE-4-QA.md), [app QA results](docs/MILESTONE-3-QA.md), [native QA results](docs/MILESTONE-2-QA.md), and [PLAN.md](PLAN.md).
+
+## Install and use
+
+The current build is a local QA candidate for Apple Silicon, ad-hoc signed and not notarized. There is no approved public download yet. See [installation, permission, and removal instructions](docs/INSTALL.md).
+
+| Action | Shortcut |
+| --- | --- |
+| Start (five-second countdown) | Control + Option + Command + P |
+| Play/pause supported course | Control + Option + Command + Space |
+| Unlock | Hold Control + Option + Command + L for two seconds |
+
+The screen and video remain visible. All input devices are blocked during a session, except the deliberate control chords. Sleep ends the session; waking does not relock.
 
 ## Development
 
@@ -18,7 +30,7 @@ A paper icon appears in the menu bar. On the first normal launch, a guide explai
 
 The welcome acknowledgement is stored locally in the app’s user-data directory; no lock state or keystrokes are saved.
 
-For first app-level QA, use `npm run start:test` instead: sessions have a thirty-second development safety limit. This mode skips the automatic welcome; use How to use PaperMode to inspect it. Quit the running instance before changing modes. Permission granted to VS Code may not cover Electron or a packaged app; follow the identity in the macOS prompt.
+For first app-level QA, use `npm run start:test` instead: sessions have a thirty-second development safety limit. Packaged apps ignore `--bounded-locks` and have no session timeout. This development mode skips the automatic welcome; use How to use PaperMode to inspect it. Quit the running instance before changing modes. Permission granted to VS Code may not cover Electron or a packaged app; follow the identity in the macOS prompt.
 
 ```sh
 npm run check:app
@@ -38,4 +50,10 @@ Start PaperMode with the intended course selected in the foreground Chrome or Sa
 
 Supported playback targets are YouTube video pages/embeds and TPStreams embeds used by course player, with English Accessibility labels. PaperMode requires a unique Play/Pause control inside a recognized player container with a seek timeline, and retains that player for the session. Other sites are currently unsupported. Unsupported/ambiguous controls, changed windows/documents/buttons, or another foreground app cause refusal. There is no extension and no global media fallback. “Playback requested” means the browser accepted the action, **not** that playback was confirmed. If the video does not respond, unlock and control it normally; do not blindly repeat a toggle. Replaced controls require starting a new session.
 
-The feature still needs packaged-app and physical-shortcut acceptance before a public release. See [milestone 7 QA](docs/MILESTONE-7-QA.md).
+Targeted physical checks passed; broader final-artifact acceptance remains before a public release. See [milestone 7 QA](docs/MILESTONE-7-QA.md).
+
+## Release and contributions
+
+Run `npm run release:local` to build and verify a local QA ZIP with SHA-256 checksum, license notices, installation instructions, and a source/signing manifest. This does not publish or notarize anything. See [release preparation](docs/RELEASE.md), [remaining release gates](docs/LOCAL-RELEASE-CHECKLIST.md), and [contribution guidance](CONTRIBUTING.md).
+
+PaperMode is licensed under [MIT](LICENSE). Bundled third-party components retain their own licenses.

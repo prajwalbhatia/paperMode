@@ -21,10 +21,12 @@
     "preview:native": "npm run build:native && .build/native/papermode-helper --preview",
     "test:lock": "npm run build:native && .build/native/papermode-helper --test-lock",
     "start:test": "npm run build:native && electron_config_cache=.build/electron-cache electron . --bounded-locks",
-    "test:ipc": "node --test tests/integration/*.test.js"
+    "test:ipc": "node --test tests/integration/*.test.js",
+    "release:local": "node scripts/prepare-local-release.js"
   },
   "devDependencies": {
     "electron": "45.3.2",
     "@electron-forge/cli": "8.0.1"
-  }
+  },
+  "license": "MIT"
 }
