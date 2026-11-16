@@ -10,7 +10,7 @@ final class Reminder {
             let area = screen.visibleFrame
             let width = min(CGFloat(332), area.width - 24)
             let panel = NSPanel(
-                contentRect: NSRect(x: area.maxX - width - 12, y: area.maxY - 132, width: width, height: 116),
+                contentRect: NSRect(x: area.maxX - width - 12, y: area.maxY - 160, width: width, height: 144),
                 styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
             panel.level = .screenSaver
             panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
@@ -39,6 +39,10 @@ final class Reminder {
         }
     }
 
+    func updatePlayback(_ text: String) {
+        for panel in panels { (panel.contentView as? ReminderCard)?.updatePlayback(text) }
+    }
+
     func close() {
         panels.forEach { $0.orderOut(nil) }
         panels.removeAll()
@@ -56,6 +60,7 @@ final class ReminderCard: NSView {
             ?? NSImage(systemSymbolName: "lock.fill", accessibilityDescription: nil)
     }()
 
+    private let playback = NSTextField(labelWithString: "")
     private let hint = NSTextField(labelWithString: "")
     private let preparation = NSTextField(labelWithString: "")
     private let progressTrack = NSView()
@@ -65,7 +70,7 @@ final class ReminderCard: NSView {
 
     init(width: CGFloat, preview: Bool, preparingSeconds: Int? = nil) {
         self.preview = preview
-        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 116))
+        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 144))
         wantsLayer = true
         layer?.backgroundColor = NSColor(srgbRed: 0.10, green: 0.11, blue: 0.13, alpha: 0.98).cgColor
         layer?.cornerRadius = 16
@@ -122,6 +127,13 @@ final class ReminderCard: NSView {
         preparation.textColor = .white
         preparation.isHidden = preparingSeconds == nil
         addSubview(preparation)
+        for view in subviews { view.frame.origin.y += 28 }
+        playback.frame = NSRect(x: 16, y: 9, width: width - 32, height: 17)
+        playback.font = .systemFont(ofSize: 10)
+        playback.textColor = NSColor.white.withAlphaComponent(0.72)
+        playback.stringValue = preview ? "⌃⌥⌘ Space · request play/pause" : "Play/pause availability checked at start"
+        playback.isHidden = preparingSeconds != nil
+        addSubview(playback)
         if let preparingSeconds { updatePreparation(seconds: preparingSeconds) }
     }
 
@@ -145,6 +157,8 @@ final class ReminderCard: NSView {
             progressFill.frame = .zero
         }
     }
+
+    func updatePlayback(_ text: String) { playback.stringValue = text }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 

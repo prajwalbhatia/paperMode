@@ -5,6 +5,7 @@ const instructions = [
   '1. Allow access\nEnable Accessibility for the app macOS identifies. In development this may be Visual Studio Code; the installed app may have a different name. Return to the paper icon in your menu bar and wait for Ready.',
   '2. Start your course\nPress Control + Option + Command + P or choose Start PaperMode. A five-second countdown gives you time to release the keys and position your notebook. Your video stays visible and keeps playing.',
   '3. Unlock deliberately\nLift the notebook and hold Control + Option + Command + L together for two seconds. Releasing early resets the hold. The reminder stays visible while input is locked.',
+  'Play/pause while locked (experimental)\nStart with your course selected in Chrome or Safari. Lift the notebook and press Control + Option + Command + Space once. PaperMode requests playback on the player selected at session start; check the video before continuing. If unavailable, unlock to control it. English-labelled players only; no global media fallback.',
   'All connected keyboards and pointing devices are blocked. Normal sessions have no time limit. Hardware power/Touch ID and macOS security controls are outside PaperMode’s guarantee.'
 ].join('\n\n');
 

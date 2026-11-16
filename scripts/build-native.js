@@ -11,7 +11,7 @@ const arch = process.arch === 'arm64' ? 'arm64' : 'x86_64';
 const result = spawnSync('xcrun', [
   'swiftc', '-O', '-target', `${arch}-apple-macosx13.0`,
   '-module-cache-path', cache,
-  ...['IPCServer.swift', 'PermissionProbe.swift', 'InputPolicy.swift', 'KeyboardLayout.swift', 'UnlockChord.swift', 'Reminder.swift', 'LockSession.swift', 'main.swift'].map(file => join(root, 'native/PaperMode', file)), '-o', join(output, 'papermode-helper')
+  ...['IPCServer.swift', 'PermissionProbe.swift', 'InputPolicy.swift', 'KeyboardLayout.swift', 'UnlockChord.swift', 'PlaybackPolicy.swift', 'PlaybackTarget.swift', 'Reminder.swift', 'LockSession.swift', 'main.swift'].map(file => join(root, 'native/PaperMode', file)), '-o', join(output, 'papermode-helper')
 ], { stdio: 'inherit' });
 if (result.error) throw result.error;
 if (result.status === 0) copyFileSync(join(root, 'assets/PaperMode.png'), join(output, 'PaperMode.png'));

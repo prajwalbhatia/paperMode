@@ -14,6 +14,11 @@ final class LockSession {
     private var observers: [NSObjectProtocol] = []
     private var signals: [DispatchSourceSignal] = []
     private var chord = UnlockChord()
+    private let playback = PlaybackTarget()
+    private var playbackKey = PlaybackPolicy()
+    private var playbackPending = false
+    private var playbackHint = "Play/pause unavailable · unlock to control"
+    private var playbackBound = false
     private let reminder = Reminder()
     private let parentPID = getppid()
     private var active = false
@@ -38,6 +43,14 @@ final class LockSession {
     func prepare(delay: TimeInterval, preview: Bool, testDuration: TimeInterval?) {
         guard !finishing else { return }
         observeCancellation()
+        if !preview {
+            playbackBound = true
+            playback.bind { [weak self] available in
+                guard let self, !self.finishing else { return }
+                self.playbackHint = available ? "⌃⌥⌘ Space · request play/pause" : "Play/pause unavailable · unlock to control"
+                if self.active { self.reminder.updatePlayback(self.playbackHint) }
+            }
+        }
         guard delay > 0 else { begin(preview: preview, testDuration: testDuration); return }
         let startsAt = ProcessInfo.processInfo.systemUptime + delay
         reminder.show(preview: preview, preparingSeconds: Int(ceil(delay)))
@@ -62,6 +75,14 @@ final class LockSession {
         guard !finishing else { return }
         observeCancellation()
         self.preview = preview
+        if !preview && !playbackBound {
+            playbackBound = true
+            playback.bind { [weak self] available in
+                guard let self, !self.finishing else { return }
+                self.playbackHint = available ? "⌃⌥⌘ Space · request play/pause" : "Play/pause unavailable · unlock to control"
+                self.reminder.updatePlayback(self.playbackHint)
+            }
+        }
         guard getppid() == parentPID else { finish("parent-exited"); return }
         if !preview && !AXIsProcessTrusted() {
             send(["event": "error", "reason": "accessibility-required"])
@@ -77,6 +98,7 @@ final class LockSession {
 
         }
         reminder.show(preview: preview)
+        reminder.updatePlayback(playbackHint)
         guard reminder.isVisible else { finish("reminder-unavailable"); return }
         activity = ProcessInfo.processInfo.beginActivity(options: [.idleDisplaySleepDisabled, .idleSystemSleepDisabled], reason: "PaperMode course viewing")
         let now = ProcessInfo.processInfo.systemUptime
@@ -84,6 +106,7 @@ final class LockSession {
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
             guard let self else { return }
             self.reminder.show(preview: self.preview)
+            self.reminder.updatePlayback(self.playbackHint)
             if !self.reminder.isVisible { self.finish("reminder-unavailable") }
         })
         for number in [SIGINT, SIGTERM, SIGHUP] {
@@ -136,6 +159,23 @@ final class LockSession {
         let flags: CGEventFlags = [.maskControl, .maskAlternate, .maskCommand]
         let modifiers = event.flags.contains(flags)
         if type == .keyDown || type == .keyUp {
+            if event.getIntegerValueField(.keyboardEventKeycode) == 49 {
+                let request = playbackKey.update(down: type == .keyDown,
+                    modifiers: modifiers && !event.flags.contains(.maskShift),
+                    repeated: event.getIntegerValueField(.keyboardEventAutorepeat) != 0)
+                if request && !playbackPending {
+                    playbackPending = true
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self, self.active, !self.finishing else { return }
+                        self.reminder.updatePlayback("Requesting playback…")
+                        self.playback.request { [weak self] message in
+                            guard let self, self.active, !self.finishing else { return }
+                            self.playbackPending = false
+                            self.reminder.updatePlayback(message)
+                        }
+                    }
+                }
+            }
             let isL = event.getIntegerValueField(.keyboardEventKeycode) == 37
             chord.update(letterDown: isL ? type == .keyDown : nil, modifiersHeld: modifiers, now: ProcessInfo.processInfo.systemUptime)
         } else if type == .flagsChanged {
@@ -182,6 +222,7 @@ final class LockSession {
     func finish(_ reason: String) {
         guard !finishing else { return }
         finishing = true
+        playback.cancel()
         active = false
         if let tap { CGEvent.tapEnable(tap: tap, enable: false); CFMachPortInvalidate(tap) }
         if let source { CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes) }

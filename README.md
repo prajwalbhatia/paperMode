@@ -2,7 +2,7 @@
 
 A macOS menu bar utility for watching courses while taking handwritten notes on a notebook resting over your laptop keyboard.
 
-The Electron menu bar app and native input lock have passed core development-Mac QA. Milestone 4's first-use guidance, artwork, and recovery messages are merged, with remaining manual checks documented. Milestone 5 is validating the local packaged app. See [packaged QA](docs/MILESTONE-5-QA.md), [UX QA](docs/MILESTONE-4-QA.md), [app QA results](docs/MILESTONE-3-QA.md), [native QA results](docs/MILESTONE-2-QA.md), and [PLAN.md](PLAN.md).
+The Electron menu bar app and native input lock have passed core development-Mac QA. Experimental native play/pause is implemented; its integrated physical-shortcut and packaged runtime checks remain before release. See [packaged QA](docs/MILESTONE-5-QA.md), [UX QA](docs/MILESTONE-4-QA.md), [app QA results](docs/MILESTONE-3-QA.md), [native QA results](docs/MILESTONE-2-QA.md), and [PLAN.md](PLAN.md).
 
 ## Development
 
@@ -31,3 +31,11 @@ npm run check:package
 See [docs/SETUP.md](docs/SETUP.md) for build details and troubleshooting.
 
 Packaging automatically verifies the bundle identity, ARM64 binaries, artwork, and current application sources. `check:package` repeats those structural checks without launching or locking. Installation, permission identity, and recovery from the actual packaged app still require the [milestone 5 acceptance sequence](docs/MILESTONE-5-QA.md).
+
+## Play/pause while locked (experimental)
+
+Start PaperMode with the intended course selected in the foreground Chrome or Safari window. When the reminder offers it, press **Control + Option + Command + Space** once to request play/pause. Keep the existing two-second L chord for unlocking. Requests never temporarily disable the input filter, and held Space does not repeat toggles.
+
+This uses a unique English-labelled native Accessibility player control and retains it for the session. Unsupported/ambiguous controls, changed windows/documents/buttons, or another foreground app cause refusal. There is no extension and no global media fallback. “Playback requested” means the browser accepted the action, **not** that playback was confirmed. If the video does not respond, unlock and control it normally; do not blindly repeat a toggle. Replaced controls require starting a new session.
+
+The feature still needs packaged-app and physical-shortcut acceptance before a public release. See [milestone 7 QA](docs/MILESTONE-7-QA.md).
