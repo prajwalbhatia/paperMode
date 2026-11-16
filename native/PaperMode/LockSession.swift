@@ -17,7 +17,7 @@ final class LockSession {
     private let playback = PlaybackTarget()
     private var playbackKey = PlaybackPolicy()
     private var playbackPending = false
-    private var playbackHint = "Play/pause unavailable · unlock to control"
+    private var playbackHint = "Checking play/pause availability…"
     private var playbackBound = false
     private let reminder = Reminder()
     private let parentPID = getppid()

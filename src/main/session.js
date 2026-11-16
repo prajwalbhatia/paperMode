@@ -34,7 +34,9 @@ class HelperSession extends EventEmitter {
       });
       this.child.stdin.on('error', () => { if (!this.stopping) this.fail('helper-connection-lost'); });
       // Drain native diagnostics without retaining or exposing arbitrary output.
-      this.child.stderr.resume();
+      if (process.env.PAPERMODE_PLAYBACK_DIAGNOSTICS === '1') {
+        this.child.stderr.on('data', data => process.stderr.write(data));
+      } else this.child.stderr.resume();
       this.child.on('error', () => this.fail('helper-launch-failed'));
       this.child.once('close', (code, signal) => this.didClose(code, signal));
     } catch {

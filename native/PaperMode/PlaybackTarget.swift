@@ -7,6 +7,11 @@ final class PlaybackTarget {
     private let cancellation = NSLock()
     private var cancelled = false
     private var target: Target?
+    private func diagnostic(_ fields: [String: Any]) {
+        guard ProcessInfo.processInfo.environment["PAPERMODE_PLAYBACK_DIAGNOSTICS"] == "1",
+              let data = try? JSONSerialization.data(withJSONObject: fields, options: [.sortedKeys]) else { return }
+        FileHandle.standardError.write(data + Data([10]))
+    }
     private struct Target {
         let pid: pid_t
         let window: AXUIElement
@@ -30,7 +35,7 @@ final class PlaybackTarget {
     private func documentURL(_ element: AXUIElement) -> String {
         value(element, "AXURL").map { String(describing: $0) } ?? ""
     }
-    private func scan(pid: pid_t) -> Target? {
+    private func scan(pid: pid_t, requirePress: Bool = true) -> Target? {
         let root = AXUIElementCreateApplication(pid)
         AXUIElementSetMessagingTimeout(root, 0.15)
         guard let raw = value(root, "AXFocusedWindow"), CFGetTypeID(raw) == AXUIElementGetTypeID() else { return nil }
@@ -47,7 +52,10 @@ final class PlaybackTarget {
             let web = role == "AXWebArea" ? element : document
             if role == "AXButton", let web {
                 let names = [string(element, "AXTitle"), string(element, "AXDescription")]
-                if names.contains(where: PlaybackPolicy.isPlayerLabel), canPress(element) {
+                if names.contains(where: PlaybackPolicy.isPlayerLabel) {
+                    diagnostic(["playback": "candidate", "press": canPress(element)])
+                }
+                if names.contains(where: PlaybackPolicy.isPlayerLabel), (!requirePress || canPress(element)) {
                     let url = documentURL(web)
                     if !url.isEmpty { found.append(Target(pid: pid, window: window, button: element, document: web, url: url)) }
                 }
@@ -59,6 +67,7 @@ final class PlaybackTarget {
             for child in children as? [AXUIElement] ?? [] { walk(child, web, depth + 1) }
         }
         walk(window, nil, 0)
+        diagnostic(["playback": "scan", "visited": visited, "incomplete": incomplete, "candidates": found.count])
         guard !incomplete, found.count == 1 else { return nil }
         return found[0]
     }
@@ -71,21 +80,51 @@ final class PlaybackTarget {
     func bind(completion: @escaping (Bool) -> Void) {
         let app = NSWorkspace.shared.frontmostApplication
         let supported = ["com.google.Chrome", "com.apple.Safari"].contains(app?.bundleIdentifier ?? "")
+        diagnostic(["playback": "bind", "browser": app?.bundleIdentifier ?? "none", "supported": supported])
         let pid = supported ? app?.processIdentifier : nil
         queue.async { [self] in
-            if let pid, !isCancelled { target = scan(pid: pid) }
-            let available = target != nil && !isCancelled
-            DispatchQueue.main.async { completion(available) }
+            guard let pid, !isCancelled, let anchor = scan(pid: pid, requirePress: false) else {
+                DispatchQueue.main.async { completion(false) }; return
+            }
+            let deadline = ProcessInfo.processInfo.systemUptime + 3
+            awaitReadiness(anchor, deadline: deadline, completion: completion)
         }
     }
+    private func sameTarget(_ left: Target, _ right: Target) -> Bool {
+        CFEqual(left.window, right.window) && CFEqual(left.button, right.button) &&
+            CFEqual(left.document, right.document) && left.url == right.url
+    }
+    private func awaitReadiness(_ anchor: Target, deadline: TimeInterval, completion: @escaping (Bool) -> Void) {
+        guard !isCancelled, NSWorkspace.shared.frontmostApplication?.processIdentifier == anchor.pid,
+              let current = scan(pid: anchor.pid, requirePress: false), sameTarget(anchor, current) else {
+            diagnostic(["playback": "binding-ended", "reason": "target-changed-or-unavailable"])
+            DispatchQueue.main.async { completion(false) }; return
+        }
+        let decision = PlaybackReadiness.decide(cancelled: isCancelled,
+            sameTarget: true, actionable: canPress(current.button),
+            now: ProcessInfo.processInfo.systemUptime, deadline: deadline)
+        switch decision {
+        case .ready:
+            target = current
+            diagnostic(["playback": "binding-ready"])
+            DispatchQueue.main.async { completion(true) }
+        case .stop:
+            diagnostic(["playback": "binding-ended", "reason": "player-not-ready"])
+            DispatchQueue.main.async { completion(false) }
+        case .wait:
+            queue.asyncAfter(deadline: .now() + 0.25) { [self] in
+                awaitReadiness(anchor, deadline: deadline, completion: completion)
+            }
+        }
+    }
+
     func request(completion: @escaping (String) -> Void) {
         queue.async { [self] in
             var message = "Player unavailable · unlock to control video"
             if let saved = target, !isCancelled,
                NSWorkspace.shared.frontmostApplication?.processIdentifier == saved.pid,
                let current = scan(pid: saved.pid),
-               CFEqual(saved.window, current.window), CFEqual(saved.button, current.button),
-               CFEqual(saved.document, current.document), saved.url == current.url,
+               sameTarget(saved, current),
                documentURL(saved.document) == saved.url,
                NSWorkspace.shared.frontmostApplication?.processIdentifier == saved.pid, !isCancelled {
                 // Never retry a toggle: AX success does not confirm video state.

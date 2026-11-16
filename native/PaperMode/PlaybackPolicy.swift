@@ -15,3 +15,14 @@ struct PlaybackPolicy {
         return modifiers && !repeated
     }
 }
+
+/// Only discovery is retried. A playback toggle is never retried.
+enum PlaybackReadiness {
+    enum Decision { case ready, wait, stop }
+    static func decide(cancelled: Bool, sameTarget: Bool, actionable: Bool,
+                       now: TimeInterval, deadline: TimeInterval) -> Decision {
+        guard !cancelled, sameTarget else { return .stop }
+        if actionable { return .ready }
+        return now < deadline ? .wait : .stop
+    }
+}
