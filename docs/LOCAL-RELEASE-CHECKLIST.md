@@ -1,6 +1,6 @@
 # Preview release checklist
 
-Updated 2026-11-17. The public source repository is live; the unnotarized preview is approved for publication. These results are scoped to their recorded builds. A published preview must retain its known limitations and must not be presented as a fully validated stable release.
+Updated 2026-11-17. The public source repository is live; the unnotarized preview is published. These results are scoped to their recorded builds. A published preview must retain its known limitations and must not be presented as a fully validated stable release.
 
 ## Completed
 
@@ -17,7 +17,7 @@ Updated 2026-11-17. The public source repository is live; the unnotarized previe
 - [x] Bug and feature issue forms, PR template, security policy and Code of Conduct added; private vulnerability reporting enabled.
 - [x] CI workflow added for JavaScript tests, native policy assertions and ARM64 package verification.
 
-## Before publishing the draft
+## Publication verification
 
 - [x] Community/CI PR merged; its first hosted CI run passed.
 - [ ] Final-byte physical browser install/lock/playback/unlock/restart retest remains unperformed. Owner explicitly approved publication with this limitation disclosed on 2026-11-17; it is not claimed as passed.
@@ -37,10 +37,12 @@ Updated 2026-11-17. The public source repository is live; the unnotarized previe
 - [ ] Developer ID signing/notarization, if chosen later.
 - [ ] Delete the original private repository only after migration is verified and the owner explicitly requests that deletion.
 
-Current draft: [GitHub Releases](https://github.com/prajwalbhatia/paperMode/releases). Archive SHA-256: `afbc72e34891c735cae6831a0edc30689c4ce6e18ba0f48cc3e2952dfbfa935b`. The new community files are repository-only changes and are not included in that already-built archive. Do not regenerate or replace the draft silently; a new artifact needs a new provenance/checksum record.
+Published preview: [v0.1.0-preview.1](https://github.com/prajwalbhatia/paperMode/releases/tag/v0.1.0-preview.1). Archive SHA-256: `afbc72e34891c735cae6831a0edc30689c4ce6e18ba0f48cc3e2952dfbfa935b`. The new community files are repository-only changes and are not included in that already-built archive. Do not regenerate or replace published assets silently; a new artifact needs a new provenance/checksum record.
 
 ## Public website
 
 - [x] Approved static landing page, transparent 3D hero, native interface images, shortcuts and installation FAQ prepared under `website/`.
 - [x] GitHub Pages workflow validated with actionlint; local asset links checked. No ChatGPT authentication is part of the static website.
-- [ ] Public deployment and release download links verified after publication.
+- [x] Public Pages deployment succeeded on 2026-11-17. Anonymous HTTP GET checks returned 200 and exact source-byte matches for HTML, CSS and all four referenced images. Browser opened the site without a sign-in gate. The explicit release ZIP link returned HTTP 200 without credentials.
+
+Launch PR [#2](https://github.com/prajwalbhatia/paperMode/pull/2) merged after hosted CI passed. [Website deployment](https://github.com/prajwalbhatia/paperMode/actions/runs/44051959217) succeeded. Public site: https://prajwalbhatia.github.io/paperMode/. Repository homepage updated. No app runtime or release artifact changed during website publication.

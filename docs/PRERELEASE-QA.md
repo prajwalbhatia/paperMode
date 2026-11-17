@@ -34,3 +34,12 @@ Owner quit PaperMode, reopened it from Applications, and confirmed all five step
 ## Current acceptance scope
 
 The browser-download, Archive Utility extraction, Applications replacement, per-app Gatekeeper approval, targeted permission recovery, Chrome physical playback/lock/unlock and installed restart flow passed on this development Mac. This is not a clean-machine install or a claim about every macOS/browser/device combination. Previously documented broader playback/recovery/hardware gates remain open. The prerelease remains a draft in a private repository; review, merge and public visibility/publication steps are still required.
+
+## Public launch verification — 2026-11-17
+
+- Owner explicitly approved publishing the privacy-cleaned final ZIP with the unperformed physical retest disclosed. This does not mark that retest passed.
+- GitHub CLI download SHA-256: `afbc72e34891c735cae6831a0edc30689c4ce6e18ba0f48cc3e2952dfbfa935b`. Extracted app passed strict app/helper signatures, 15 Mach-O ARM64 architecture checks, and exact runtime source inventory.
+- 42 JavaScript tests and hosted native/package CI passed. Website workflow passed actionlint.
+- Prerelease published with ZIP, checksum, manifest and installation instructions. Anonymous ZIP request followed the release redirect to HTTP 200, with expected 120392535-byte content length.
+- GitHub Pages deployment succeeded; anonymous HTTP reads of all six website resources matched repository bytes. Browser confirmed the public site loads without ChatGPT authentication.
+- Physical acceptance, clean-machine and other documented coverage limits remain unchanged. Demo, paid signing/notarization and private archive deletion remain deferred.
