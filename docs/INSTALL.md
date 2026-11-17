@@ -2,17 +2,24 @@
 
 ## Current availability
 
-This is a local QA candidate, not an approved public release. It is ad-hoc signed, without Developer ID signing or Apple notarization. A downloaded copy may be blocked by Gatekeeper; a successful local launch does not prove downloaded-install acceptance. Do not disable Gatekeeper globally. Public distribution instructions will be finalized after the signing decision and downloaded-copy tests.
+PaperMode's first preview is ad-hoc signed and **not Developer ID signed or notarized by Apple**. It is intended for early testing, not a stable release. Download only from the [official GitHub Releases page](https://github.com/prajwalbhatia/paperMode/releases). Draft releases are visible only to repository collaborators until published.
 
 Current artifact: Apple Silicon (ARM64) only. Development and owner QA were performed on macOS 27.2.1. macOS 13 is the build deployment target, not a tested compatibility claim. Intel and older macOS runtime support are unverified.
 
-## Install a locally built candidate
+## Install the GitHub preview
 
-1. Quit PaperMode before replacing an existing copy. Keep the previous build available until replacement testing passes.
-2. Unzip the local QA archive and drag PaperMode.app into Applications. Keep only one running copy.
-3. Open PaperMode. Its paper icon appears in the menu bar; it does not have a normal main window.
-4. In the guide, choose **Enable Accessibility…**. In System Settings → Privacy & Security → Accessibility, enable PaperMode and authenticate locally if requested.
-5. Close the guide, then use **Check permission and layout** in the menu. Wait for **Ready**. If it remains Permission required, quit and reopen the installed copy and check its permission again. Development-host grants such as VS Code do not necessarily cover the packaged app.
+1. Download `PaperMode-0.1.0-macos-arm64-unnotarized-preview.zip` from the official release's **Assets** section. Optionally download `SHA256SUMS.txt` to compare the archive checksum; a matching checksum checks consistency with the published asset, not independent trust in the publisher.
+2. Quit an existing PaperMode instance. Keep the previous build until replacement testing passes. Extract the ZIP and drag **PaperMode.app** into **Applications**, replacing the old copy if applicable. Run only one copy.
+3. Open **Applications → PaperMode** once. macOS may say it cannot verify PaperMode is free of malware, or that the developer cannot be verified. Dismiss that warning without moving the app to Trash.
+4. If you trust the official download, open **System Settings → Privacy & Security**, scroll to **Security**, and choose **Open Anyway** beside the PaperMode notice. Confirm opening and authenticate locally if prompted. The notice appears after an attempted launch; wording varies by macOS version. Managed Macs may prohibit this override.
+5. PaperMode appears as a paper icon in the menu bar, not a normal main window. Open **How to use PaperMode** and choose **Enable Accessibility…** if needed. In **Privacy & Security → Accessibility**, enable **PaperMode** and authenticate locally if prompted.
+6. Close the guide, then choose **Check permission and layout** in PaperMode's menu. Wait for **Ready**. Start is disabled while Help is open. If permission still appears missing, quit and reopen the installed copy and check again.
+
+This is Apple's per-app exception flow: [Safely open apps on your Mac](https://support.apple.com/102445). Do not disable Gatekeeper globally or remove quarantine attributes to bypass the check. If macOS reports actual malware or a damaged app, stop and report the exact warning rather than treating it as the expected unidentified-developer notice.
+
+## Updating and permission identity
+
+Quit before replacing PaperMode. Development-host grants such as VS Code do not necessarily cover the installed app. Always reopen the copy in Applications after an update so an old development build does not remain active.
 
 If replacing an ad-hoc build invalidates its permission identity, remove the stale PaperMode entry using Accessibility settings, reopen the intended installed copy, and grant that copy permission. Do not reset permissions for unrelated apps.
 
@@ -22,7 +29,7 @@ Bring the intended course to the foreground. Close Help before starting. Press *
 
 Hold **Control + Option + Command + L** together for two seconds to unlock. The reminder displays the shortcut and hold progress; releasing early resets it. Normal packaged sessions have **no automatic timeout**. The `--bounded-locks` option applies only to development runs, not packaged apps. Sleep ends a session and waking does not restart it.
 
-When available, press **Control + Option + Command + Space** once to pause/resume the bound video; release before another press. Experimental support covers YouTube video pages/embeds and TPStreams embeds used by course player in Chrome/Safari, with English Accessibility labels and a unique recognized player. Unsupported or changed players can show unavailable. Unlock to control these normally. The action acknowledgement is not confirmation of playback state.
+When available, press **Control + Option + Command + Space** once to pause/resume the bound video; release before another press. Experimental support covers compatible YouTube and TPStreams players in Chrome/Safari, with English Accessibility labels and a unique recognized player. Unsupported or changed players can show unavailable. Unlock to control these normally. The action acknowledgement is not confirmation of playback state.
 
 ## Remove
 

@@ -10,3 +10,7 @@ test('version cannot escape artifact directory', () => {
     assert.throws(() => artifactName(version));
   }
 });
+
+test('preview artifacts clearly identify their unnotarized status', () => {
+  assert.equal(artifactName('0.1.0', true), 'PaperMode-0.1.0-macos-arm64-unnotarized-preview.zip');
+});

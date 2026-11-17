@@ -16,7 +16,8 @@ The owner requested finishing local work before Apple distribution setup. Do not
 - [x] Merge milestone 7 (PR #6; main at 9108527).
 - [x] Choose license: MIT, explicitly approved by the owner on 2026-11-17.
 - [x] Document Developer ID signing/notarization process in RELEASE.md.
-- [ ] Owner selects public signing/distribution approach; complete its verification.
+- [x] Owner selected unnotarized GitHub preview distribution on 2026-11-17.
+- [ ] Verify browser download, quarantine and per-app approval/install flow for the preview.
 - [x] Draft installation/uninstallation instructions, contribution guide, versioned release notes and accurate tested-platform claims.
 - [ ] Record and review the demo (DEMO.md).
 - [x] Build and verify local ZIP, checksum and manifest (2026-11-17; see MILESTONE-6-QA.md).

@@ -20,7 +20,9 @@ The ZIP includes PaperMode.app, installation instructions, the MIT license, Elec
 
 This workflow expects ad-hoc signing and does not upload, tag, notarize, launch, or lock input. A dirty-tree manifest identifies uncommitted inputs; public candidates must be rebuilt from a clean reviewed commit. Checks establish structure and archive integrity, not Gatekeeper acceptance or runtime QA. The local workflow must be replaced/adapted when Developer ID signing is configured.
 
-## Public signing decision (still open)
+## Public signing decision
+
+On 2026-11-17 the owner selected an unnotarized GitHub preview without paid Apple membership for now. Developer ID signing remains a future option, not a prerequisite for this explicitly labelled preview.
 
 GitHub can host the download, but that does not sign or notarize it. Apple's [Developer ID distribution overview](https://developer.apple.com/developer-id/) describes signing apps distributed outside the App Store. [Apple Developer Program enrollment](https://developer.apple.com/help/account/membership/program-enrollment) is the owner step for obtaining Developer ID access; enrollment is generally US$99 per membership year, with local pricing where available.
 
@@ -36,3 +38,9 @@ Source publication under MIT does not require enrolling in Apple's program. No e
 ## Before publishing
 
 Complete `LOCAL-RELEASE-CHECKLIST.md`, record final-artifact QA against its checksum, record the demo, review release notes, settle signing, and obtain explicit publication authorization. Do not infer successful clean-install, older-macOS, or Intel support from build metadata.
+
+## Unnotarized preview workflow
+
+From a clean committed tree, run `npm run release:preview`. This uses the same archive verification but names the ZIP `PaperMode-0.1.0-macos-arm64-unnotarized-preview.zip` and bundles `UNNOTARIZED-PREVIEW.txt`. The app version remains 0.1.0; the first GitHub preview tag is `v0.1.0-preview.1`. The manifest describes build-time state and does not itself authorize publication.
+
+Upload the ZIP, SHA256SUMS.txt, manifest.json and INSTALL.md to a **draft prerelease** targeting the exact build commit. Download its asset through a browser while signed into GitHub to exercise quarantine, extraction, per-app Open Anyway, Applications installation and Accessibility permission. CLI downloads alone do not establish this flow. Record checksum and observations before publishing the draft. This existing development Mac cannot establish clean-machine behavior because earlier permissions/approvals may persist.

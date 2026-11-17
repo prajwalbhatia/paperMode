@@ -22,7 +22,8 @@
     "test:lock": "npm run build:native && .build/native/papermode-helper --test-lock",
     "start:test": "npm run build:native && electron_config_cache=.build/electron-cache electron . --bounded-locks",
     "test:ipc": "node --test tests/integration/*.test.js",
-    "release:local": "node scripts/prepare-local-release.js"
+    "release:local": "node scripts/prepare-local-release.js",
+    "release:preview": "node scripts/prepare-local-release.js --prerelease"
   },
   "devDependencies": {
     "electron": "45.3.2",
