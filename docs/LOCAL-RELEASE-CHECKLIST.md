@@ -1,6 +1,6 @@
 # Preview release checklist
 
-Updated 2026-11-17. The public source repository is live; the unnotarized preview download is still a draft. These results are scoped to their recorded builds. A published preview must retain its known limitations and must not be presented as a fully validated stable release.
+Updated 2026-11-17. The public source repository is live; the unnotarized preview is approved for publication. These results are scoped to their recorded builds. A published preview must retain its known limitations and must not be presented as a fully validated stable release.
 
 ## Completed
 
@@ -20,9 +20,9 @@ Updated 2026-11-17. The public source repository is live; the unnotarized previe
 ## Before publishing the draft
 
 - [x] Community/CI PR merged; its first hosted CI run passed.
-- [ ] Repeat browser download/install acceptance on the privacy-cleaned final ZIP; prior physical tests used its earlier candidate. Record its exact checksum.
+- [ ] Final-byte physical browser install/lock/playback/unlock/restart retest remains unperformed. Owner explicitly approved publication with this limitation disclosed on 2026-11-17; it is not claimed as passed.
 - [x] Final draft assets downloaded via GitHub CLI on 2026-11-17; ZIP checksum matches the recorded value. Extracted app passed signature, 15-binary ARM64 architecture and 9-file runtime source verification. Release remains unnotarized.
-- [ ] Confirm the known limits below are acceptable for the preview and publish only with explicit owner authorization.
+- [x] Owner explicitly approved publishing the preview with the final-byte physical-test limitation disclosed on 2026-11-17.
 
 ## Remaining validation limits
 
