@@ -14,7 +14,7 @@ The current build is a local QA candidate for Apple Silicon, ad-hoc signed and n
 | Play/pause supported course | Control + Option + Command + Space |
 | Unlock | Hold Control + Option + Command + L for two seconds |
 
-The screen and video remain visible. All input devices are blocked during a session, except the deliberate control chords. Sleep ends the session; waking does not relock.
+The screen and video remain visible. On the tested Mac, built-in keyboard, trackpad/pointer, and tested media-key input stayed blocked during sessions, except the deliberate control chords. The filter suppresses recognized media/control events but deliberately passes through power and unknown system events; PaperMode does not prevent every system action. External keyboard/mouse coverage remains unverified. Sleep ends the session; waking does not relock.
 
 ## Development
 

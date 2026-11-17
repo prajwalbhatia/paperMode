@@ -18,7 +18,7 @@ If replacing an ad-hoc build invalidates its permission identity, remove the sta
 
 ## Use
 
-Bring the intended course to the foreground. Close Help before starting. Press **Control + Option + Command + P**, or choose **Start PaperMode** in the menu. After the five-second countdown, keyboard and pointer input are blocked while the video and screen remain visible.
+Bring the intended course to the foreground. Close Help before starting. Press **Control + Option + Command + P**, or choose **Start PaperMode** in the menu. After the five-second countdown, PaperMode filters keyboard, pointer, and recognized media/control input while the video and screen remain visible. Built-in keyboard, trackpad and tested media-key blocking passed on the development Mac; external keyboard/mouse coverage remains unverified. Power and unknown system events deliberately pass through, so not every system action is prevented.
 
 Hold **Control + Option + Command + L** together for two seconds to unlock. The reminder displays the shortcut and hold progress; releasing early resets it. Normal packaged sessions have **no automatic timeout**. The `--bounded-locks` option applies only to development runs, not packaged apps. Sleep ends a session and waking does not restart it.
 
