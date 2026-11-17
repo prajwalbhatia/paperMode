@@ -1,0 +1,43 @@
+name: CI
+
+'on':
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos-checks:
+    name: macOS ARM64 tests and package
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - name: Verify native build host
+        run: node -e "if (process.platform !== 'darwin' || process.arch !== 'arm64') throw new Error('Expected native macOS ARM64 Node');"
+      - name: Install locked dependencies
+        run: npm ci
+      - name: JavaScript tests
+        run: npm test
+      - name: Native policy assertions
+        run: npm run test:native
+      - name: Build and verify ARM64 package
+        run: npm run package
+      # Physical locks, permission prompts and GUI preview/IPC tests remain local QA.
+      # This workflow neither signs with Developer ID nor uploads/publishes artifacts.
