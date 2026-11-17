@@ -1,6 +1,6 @@
 # Preview release checklist
 
-Updated 2026-11-17. The public source repository is live; the unnotarized preview download is still a draft. These results are scoped to their recorded builds. A published preview must retain its known limitations and must not be presented as a fully validated stable release.
+Updated 2026-11-17. The public source repository is live; the unnotarized preview is approved for publication. These results are scoped to their recorded builds. A published preview must retain its known limitations and must not be presented as a fully validated stable release.
 
 ## Completed
 
@@ -19,10 +19,10 @@ Updated 2026-11-17. The public source repository is live; the unnotarized previe
 
 ## Before publishing the draft
 
-- [ ] Review/merge the community and CI changes; confirm the first hosted CI run succeeds.
-- [ ] Repeat browser download/install acceptance on the privacy-cleaned final ZIP; prior physical tests used its earlier candidate. Record its exact checksum.
-- [ ] Verify release notes, download links, assets and unnotarized status on the final draft.
-- [ ] Confirm the known limits below are acceptable for the preview and publish only with explicit owner authorization.
+- [x] Community/CI PR merged; its first hosted CI run passed.
+- [ ] Final-byte physical browser install/lock/playback/unlock/restart retest remains unperformed. Owner explicitly approved publication with this limitation disclosed on 2026-11-17; it is not claimed as passed.
+- [x] Final draft assets downloaded via GitHub CLI on 2026-11-17; ZIP checksum matches the recorded value. Extracted app passed signature, 15-binary ARM64 architecture and 9-file runtime source verification. Release remains unnotarized.
+- [x] Owner explicitly approved publishing the preview with the final-byte physical-test limitation disclosed on 2026-11-17.
 
 ## Remaining validation limits
 
@@ -38,3 +38,9 @@ Updated 2026-11-17. The public source repository is live; the unnotarized previe
 - [ ] Delete the original private repository only after migration is verified and the owner explicitly requests that deletion.
 
 Current draft: [GitHub Releases](https://github.com/prajwalbhatia/paperMode/releases). Archive SHA-256: `afbc72e34891c735cae6831a0edc30689c4ce6e18ba0f48cc3e2952dfbfa935b`. The new community files are repository-only changes and are not included in that already-built archive. Do not regenerate or replace the draft silently; a new artifact needs a new provenance/checksum record.
+
+## Public website
+
+- [x] Approved static landing page, transparent 3D hero, native interface images, shortcuts and installation FAQ prepared under `website/`.
+- [x] GitHub Pages workflow validated with actionlint; local asset links checked. No ChatGPT authentication is part of the static website.
+- [ ] Public deployment and release download links verified after publication.

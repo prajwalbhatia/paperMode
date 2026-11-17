@@ -59,3 +59,7 @@ Run `npm run release:local` to build and verify a local QA ZIP with SHA-256 chec
 PaperMode is licensed under [MIT](LICENSE). Bundled third-party components retain their own licenses.
 
 For bugs and feature ideas, use the [issue forms](https://github.com/prajwalbhatia/paperMode/issues/new/choose). Please follow our [Code of Conduct](CODE_OF_CONDUCT.md); report vulnerabilities through the private channel in [SECURITY.md](SECURITY.md).
+
+## Website
+
+Visit [PaperMode](https://prajwalbhatia.github.io/paperMode/) for features, shortcuts and installation help. The static source lives in `website/`; GitHub Pages deploys it from main.
