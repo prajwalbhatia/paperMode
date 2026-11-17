@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability privately
+    url: https://github.com/prajwalbhatia/paperMode/security/advisories/new
+    about: Use GitHub private vulnerability reporting for sensitive security issues.
+  - name: Installation and permission help
+    url: https://github.com/prajwalbhatia/paperMode/blob/main/docs/INSTALL.md
+    about: Read the unnotarized-app installation and permission-recovery instructions.

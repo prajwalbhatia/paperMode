@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a reproducible problem with PaperMode.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For vulnerabilities or sensitive details, use [private security reporting](https://github.com/prajwalbhatia/paperMode/security/advisories/new), not this public form.
+        Remove account details, private lesson URLs, tokens and unrelated screen content from your report.
+  - type: input
+    id: version
+    attributes:
+      label: PaperMode version and install source
+      placeholder: "0.1.0 preview; GitHub ZIP / built from source (commit)"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: macOS version and Mac chip
+      placeholder: "macOS version; Apple Silicon chip or Intel"
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser or video player
+      description: Include its version and site name if relevant; do not paste private video URLs.
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include whether Help was open, the menu status, and whether you used the menu or shortcut.
+      placeholder: "1. ...\n2. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+      description: Include the exact visible error message, if any.
+    validations:
+      required: true
+  - type: textarea
+    id: recovery
+    attributes:
+      label: Input and recovery outcome
+      description: Did input stay blocked? Did holding Control + Option + Command + L for two seconds unlock? What restored input, if anything? Write not applicable for unrelated bugs.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Optional logs or screenshots
+      description: Share only relevant, redacted evidence. Do not include passwords, tokens, or personal information.

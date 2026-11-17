@@ -57,3 +57,5 @@ Targeted physical checks passed; broader final-artifact acceptance remains befor
 Run `npm run release:local` to build and verify a local QA ZIP with SHA-256 checksum, license notices, installation instructions, and a source/signing manifest. This does not publish or notarize anything. See [release preparation](docs/RELEASE.md), [remaining release gates](docs/LOCAL-RELEASE-CHECKLIST.md), and [contribution guidance](CONTRIBUTING.md).
 
 PaperMode is licensed under [MIT](LICENSE). Bundled third-party components retain their own licenses.
+
+For bugs and feature ideas, use the [issue forms](https://github.com/prajwalbhatia/paperMode/issues/new/choose). Please follow our [Code of Conduct](CODE_OF_CONDUCT.md); report vulnerabilities through the private channel in [SECURITY.md](SECURITY.md).

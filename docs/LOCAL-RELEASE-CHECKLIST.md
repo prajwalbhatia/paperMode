@@ -1,28 +1,40 @@
-# Local candidate before public release
+# Preview release checklist
 
-The owner requested finishing local work before Apple distribution setup. Do not publish this artifact as a finished release.
+Updated 2026-11-17. The public source repository is live; the unnotarized preview download is still a draft. These results are scoped to their recorded builds. A published preview must retain its known limitations and must not be presented as a fully validated stable release.
 
-- [x] Implement experimental native play/pause and expose its shortcut/limitations.
-- [x] Build native helper; pass JavaScript, native policy/recovery, and IPC tests.
-- [x] Exercise production target binding and two playback requests on the controlled Chrome player.
-- [x] Package the Apple Silicon app and verify its structure/signatures/architecture.
-- [x] Complete initial physical playback/unlock test on the rebuilt app (Chrome/YouTube, owner-confirmed; broader matrix below remains).
-- [x] Targeted post-review physical retest: Chrome/YouTube, Safari/YouTube, Chrome/course player pause/resume/unlock (owner confirmed).
-- [x] Final local candidate: owner-confirmed Chrome and Safari full-screen playback/unlock; Safari three-minute pause/resume.
-- [ ] Remaining final-candidate playback matrix: Chrome long pause, target changes/ambiguity and hung-browser behavior.
-- [x] Extracted final local candidate runtime smoke and IPC/preview/preparation tests (MILESTONE-6-QA.md).
+## Completed
+
+- [x] Implement input locking, deliberate unlock, reminders, permission guidance and experimental targeted playback.
+- [x] JavaScript, native policy and package checks passed for the recorded candidates.
+- [x] Owner-confirmed Chrome/Safari full-screen playback and unlock, plus Safari three-minute pause/resume on the milestone 6 candidate.
+- [x] Milestone 6 code review completed; the reported input-blocking documentation claim was narrowed. Milestone 6 and prerelease-preparation PRs were merged before migration.
+- [x] MIT license approved and included, with installation/removal and contribution instructions.
+- [x] Owner selected ad-hoc-signed, unnotarized GitHub preview distribution without paid Apple membership for now.
+- [x] Firefox download, quarantine, per-app Open Anyway approval, Applications replacement, permission recovery, Chrome physical lock/playback/unlock and restart passed on the earlier downloaded candidate (PRERELEASE-QA.md).
+- [x] Privacy-cleaned public repository created with 39 original commit dates preserved; previous repository retained privately. Old PR refs were not copied.
+- [x] Rebuilt the privacy-cleaned archive; package, ZIP round-trip and checksum checks passed. Draft assets are attached to source commit `b3d78154c8290f8170b0b2184761ed6f3781b83a`.
+- [x] Draft preview prepared in the public repository with ZIP, checksum, manifest, installation instructions and known limitations.
+- [x] Bug and feature issue forms, PR template, security policy and Code of Conduct added; private vulnerability reporting enabled.
+- [x] CI workflow added for JavaScript tests, native policy assertions and ARM64 package verification.
+
+## Before publishing the draft
+
+- [ ] Review/merge the community and CI changes; confirm the first hosted CI run succeeds.
+- [ ] Repeat browser download/install acceptance on the privacy-cleaned final ZIP; prior physical tests used its earlier candidate. Record its exact checksum.
+- [ ] Verify release notes, download links, assets and unnotarized status on the final draft.
+- [ ] Confirm the known limits below are acceptable for the preview and publish only with explicit owner authorization.
+
+## Remaining validation limits
+
+- [ ] Clean-machine installation and first-time permission acceptance.
+- [ ] Chrome long-pause, target changes/ambiguity and hung-browser behavior on the final candidate.
 - [ ] Final-candidate physical recovery and permission-revocation checks.
-- [x] Follow-up code review: no new actionable defects at c6753d2; both P2 findings addressed.
-- [x] Merge milestone 7 (PR #6; main at 9108527).
-- [x] Choose license: MIT, explicitly approved by the owner on 2026-11-17.
-- [x] Document Developer ID signing/notarization process in RELEASE.md.
-- [x] Owner selected unnotarized GitHub preview distribution on 2026-11-17.
-- [x] Verify Firefox download, quarantine, per-app approval, Applications replacement, permission recovery, Chrome lock/playback/unlock and restart on the development Mac (PRERELEASE-QA.md).
-- [ ] Clean-machine install and first-time permission acceptance remain unverified.
-- [x] Draft installation/uninstallation instructions, contribution guide, versioned release notes and accurate tested-platform claims.
-- [ ] Record and review the demo (DEMO.md).
-- [x] Build and verify local ZIP, checksum and manifest (2026-11-17; see MILESTONE-6-QA.md).
-- [ ] Review milestone 6 changes.
-- [ ] Publish only after review and explicit release authorization.
+- [ ] External-device and multiple-monitor coverage; Intel and older macOS runtime compatibility remain unverified.
 
-Current local bundle: `out/PaperMode-darwin-arm64/PaperMode.app`. It is ad-hoc signed, not Developer ID signed/notarized. Keep the prior installed build until replacement/permission behavior is tested. Follow `MILESTONE-7-QA.md` for the remaining acceptance checks.
+## Deferred by owner
+
+- [ ] Record and review the demo (DEMO.md); deferred until after this community/CI work.
+- [ ] Developer ID signing/notarization, if chosen later.
+- [ ] Delete the original private repository only after migration is verified and the owner explicitly requests that deletion.
+
+Current draft: [GitHub Releases](https://github.com/prajwalbhatia/paperMode/releases). Archive SHA-256: `afbc72e34891c735cae6831a0edc30689c4ce6e18ba0f48cc3e2952dfbfa935b`. The new community files are repository-only changes and are not included in that already-built archive. Do not regenerate or replace the draft silently; a new artifact needs a new provenance/checksum record.

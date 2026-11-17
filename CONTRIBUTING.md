@@ -16,4 +16,12 @@ For input-lock changes, begin with `npm run start:test`, which has a 30-second d
 
 Report issues with macOS version, chip architecture, PaperMode version, browser/site, reproduction steps, and expected/actual behavior. Remove private URLs, account information, and unrelated screen content from logs or screenshots. Never include signing keys or passwords.
 
+## Issues and community
+
+Use the bug-report or feature-request form from the repository's **Issues → New issue** page. Follow the [Code of Conduct](CODE_OF_CONDUCT.md). Report security problems through [SECURITY.md](SECURITY.md), not public issues.
+
+Pull requests use a template for behavior, validation and remaining limits. CI runs JavaScript tests, native policy assertions and ARM64 package verification on macOS 15 with the Node version in `.nvmrc`. CI does not activate an input lock, grant permissions or publish a release. GUI preview/IPC and physical hardware checks remain local; a green build is not proof of runtime compatibility with every Mac or browser.
+
+Use GitHub's noreply email for commits if you want to keep your address private. Do not copy private backup, audit or old PR refs into the public repository.
+
 Contributions are under the project's MIT license. Third-party code must retain its applicable notices.
