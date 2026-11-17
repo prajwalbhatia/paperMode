@@ -8,8 +8,10 @@ The owner requested finishing local work before Apple distribution setup. Do not
 - [x] Package the Apple Silicon app and verify its structure/signatures/architecture.
 - [x] Complete initial physical playback/unlock test on the rebuilt app (Chrome/YouTube, owner-confirmed; broader matrix below remains).
 - [x] Targeted post-review physical retest: Chrome/YouTube, Safari/YouTube, Chrome/course player pause/resume/unlock (owner confirmed).
-- [ ] Complete the broader final-build matrix: full screen, long pause and target changes.
-- [ ] Complete packaged runtime smoke and recovery checks on this final artifact.
+- [x] Final local candidate: owner-confirmed Chrome and Safari full-screen playback/unlock; Safari three-minute pause/resume.
+- [ ] Remaining final-candidate playback matrix: Chrome long pause, target changes/ambiguity and hung-browser behavior.
+- [x] Extracted final local candidate runtime smoke and IPC/preview/preparation tests (MILESTONE-6-QA.md).
+- [ ] Final-candidate physical recovery and permission-revocation checks.
 - [x] Follow-up code review: no new actionable defects at c6753d2; both P2 findings addressed.
 - [x] Merge milestone 7 (PR #6; main at 9108527).
 - [x] Choose license: MIT, explicitly approved by the owner on 2026-11-17.

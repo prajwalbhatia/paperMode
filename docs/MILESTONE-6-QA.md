@@ -15,4 +15,35 @@ This workflow test was built from main commit `9108527d0469984e89792a973275a2c5a
 
 ## Limits and remaining gates
 
-No app was launched and no input lock was activated by these checks. Download quarantine/Gatekeeper acceptance, a clean-machine install, final-artifact runtime/recovery and broader playback acceptance are not established. The candidate is ad-hoc signed and not notarized. Owner-approved MIT licensing is complete; public signing decision, demo recording, milestone 6 review and explicit publication approval remain open. See LOCAL-RELEASE-CHECKLIST.md.
+The initial workflow checks above did not launch the app or activate an input lock. Subsequent runtime and owner physical results are recorded below. Download quarantine/Gatekeeper acceptance, a clean-machine install, final-artifact runtime/recovery and broader playback acceptance are not established. The candidate is ad-hoc signed and not notarized. Owner-approved MIT licensing is complete; public signing decision, demo recording, milestone 6 review and explicit publication approval remain open. See LOCAL-RELEASE-CHECKLIST.md.
+
+## Clean-commit candidate and runtime checks — 2026-11-17
+
+Built from clean commit `1537b9dfe4ff924b93505bed9ac4572b78c10499`; manifest records `sourceTreeDirty: false`.
+Artifact: `out/release-local-cY1RbK/PaperMode-0.1.0-macos-arm64-local-qa.zip`.
+SHA-256: `f3b3b6b6e3f68b3be98c5fd73efd652f6d6fabe265fa2b8e852b66eca7aa7046`.
+Runtime copy extracted from that ZIP: `out/release-local-cY1RbK/runtime-qa/PaperMode.app`.
+
+- Local release workflow and SHA-256 verification passed; original and extracted package checks passed.
+- Native policy assertions passed (unlock timing, input filtering, playback selection/repeat/readiness/deadline rules).
+- Closed the prior idle app before testing. Extracted app `--smoke-test` exited 0: menu created, start shortcut registered, Ready, Accessibility trusted and ABC-India layout supported.
+- All 10 IPC/preview/preparation integration tests passed. Protocol and preview cases used the extracted helper via PAPERMODE_TEST_HELPER; the preparation notification test compiled its separate source harness. These did not activate an input lock.
+- Opened the extracted candidate for owner physical QA; results and remaining cases are recorded below.
+
+This is a local extracted-copy check, not an Applications replacement, fresh-machine install or quarantined-download acceptance. No permission was reset. No public signing/notarization claim.
+
+### Owner physical QA — Chrome full screen
+
+Owner confirmed all steps passed on the clean-commit candidate above: input remained blocked, play/pause shortcut paused and resumed the video, Chrome stayed full screen, reminder stayed visible, and the two-second unlock shortcut restored input. Initial session-start difficulty cleared after restarting the idle app; startup diagnostic reported Ready, permission granted and shortcut registered. Root cause of that initial difficulty was not established. Safari results follow below.
+
+### Owner physical QA — Safari full screen
+
+Owner confirmed all steps passed on the same candidate: input stayed blocked, Safari stayed full screen, play/pause paused and resumed the video, the reminder remained visible, and the two-second unlock shortcut restored input. Long-pause results follow below.
+
+### Owner physical QA — Safari three-minute pause
+
+Owner confirmed the candidate remained locked for three minutes while paused, the same Safari video resumed using the playback shortcut, and holding the unlock shortcut restored input.
+
+### Local QA round closed at owner request
+
+The owner requested finalizing this local QA round after the Safari long-pause pass. This is not a claim that all release gates passed. Chrome long-pause, target-change/ambiguity, hung-browser behavior, final-candidate physical recovery and permission-revocation cases remain untested in this round. Earlier milestone evidence remains scoped to its original builds. Demo, clean-install/replacement/download acceptance, signing decision, milestone 6 code review and publication approval remain open.
