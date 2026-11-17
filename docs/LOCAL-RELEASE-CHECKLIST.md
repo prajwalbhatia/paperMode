@@ -17,7 +17,8 @@ The owner requested finishing local work before Apple distribution setup. Do not
 - [x] Choose license: MIT, explicitly approved by the owner on 2026-11-17.
 - [x] Document Developer ID signing/notarization process in RELEASE.md.
 - [x] Owner selected unnotarized GitHub preview distribution on 2026-11-17.
-- [ ] Verify browser download, quarantine and per-app approval/install flow for the preview.
+- [x] Verify Firefox download, quarantine, per-app approval, Applications replacement, permission recovery, Chrome lock/playback/unlock and restart on the development Mac (PRERELEASE-QA.md).
+- [ ] Clean-machine install and first-time permission acceptance remain unverified.
 - [x] Draft installation/uninstallation instructions, contribution guide, versioned release notes and accurate tested-platform claims.
 - [ ] Record and review the demo (DEMO.md).
 - [x] Build and verify local ZIP, checksum and manifest (2026-11-17; see MILESTONE-6-QA.md).
