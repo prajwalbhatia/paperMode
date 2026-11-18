@@ -18,7 +18,7 @@ The command rebuilds the helper and app, verifies the packaged bundle, creates a
 
 The ZIP includes PaperMode.app, installation instructions, the MIT license, Electron's license, Chromium notices and a local-QA warning. A failed run is not an accepted artifact. Successful runs remove staging/extraction directories. Check the checksum from the printed output directory with `shasum -a 256 -c SHA256SUMS.txt`.
 
-This workflow expects ad-hoc signing and does not upload, tag, notarize, launch, or lock input. A dirty-tree manifest identifies uncommitted inputs; public candidates must be rebuilt from a clean reviewed commit. Checks establish structure and archive integrity, not Gatekeeper acceptance or runtime QA. The local workflow must be replaced/adapted when Developer ID signing is configured.
+This workflow expects ad-hoc signing and does not upload, tag, notarize, launch, or lock input. A dirty-tree manifest identifies uncommitted inputs; public candidates must be rebuilt from a clean reviewed commit. Checks establish structure and archive integrity, not Gatekeeper acceptance or runtime QA. The separate Developer ID workflow is documented in [NOTARIZATION-READINESS.md](NOTARIZATION-READINESS.md).
 
 ## Public signing decision
 
