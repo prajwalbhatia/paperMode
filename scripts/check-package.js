@@ -47,7 +47,7 @@ function verifySourceInventory(current, packaged) {
 }
 
 // Structural checks only: never launch the app, request permission, or lock input.
-async function checkPackage(bundle = join(root, 'out/PaperMode-darwin-arm64/PaperMode.app')) {
+async function checkPackage(bundle = join(root, 'out/PaperMode-darwin-arm64/PaperMode.app'), { helperResigned = ['hardened-local', 'developer-id'].includes(process.env.PAPERMODE_SIGNING_MODE) } = {}) {
   const { extractFile, listPackage, statFile } = await import('@electron/asar'); // Installed by Forge; pinned in the lockfile.
   const contents = join(resolve(bundle), 'Contents');
   const resources = join(contents, 'Resources');
@@ -68,10 +68,12 @@ async function checkPackage(bundle = join(root, 'out/PaperMode-darwin-arm64/Pape
   verifyArchitectures(binaries);
   for (const [source, bundled] of [
     ['assets/PaperMode.icns', plist.CFBundleIconFile],
-    ['assets/PaperMode.png', 'PaperMode.png'],
-    ['.build/native/papermode-helper', 'papermode-helper']
+    ['assets/PaperMode.png', 'PaperMode.png']
   ]) {
     assert.deepEqual(readFileSync(join(resources, bundled)), readFileSync(join(root, source)), `Outdated or incorrect packaged ${bundled}`);
+  }
+  if (!helperResigned) {
+    assert.deepEqual(readFileSync(join(resources, 'papermode-helper')), readFileSync(join(root, '.build/native/papermode-helper')), 'Outdated or incorrect packaged papermode-helper');
   }
   const archive = join(resources, 'app.asar');
   const packagedManifest = JSON.parse(extractFile(archive, 'package.json'));
@@ -95,7 +97,7 @@ async function checkPackage(bundle = join(root, 'out/PaperMode-darwin-arm64/Pape
   for (const file of ['PaperMode.png', 'paperTemplate.png', 'paperTemplate@2x.png']) {
     assert.deepEqual(extractFile(archive, `assets/${file}`), readFileSync(join(root, 'assets', file)));
   }
-  console.log(JSON.stringify({ bundle: resolve(bundle), version: pkg.version, architecture: 'arm64', machOBinaries: binaries.length, sourceFiles: sourceFiles.length, structuralChecks: 'passed', runtimeAcceptance: 'not tested by this command' }, null, 2));
+  console.log(JSON.stringify({ bundle: resolve(bundle), version: pkg.version, architecture: 'arm64', machOBinaries: binaries.length, sourceFiles: sourceFiles.length, helperSignature: helperResigned ? 're-signed and verified' : 'source bytes verified', structuralChecks: 'passed', runtimeAcceptance: 'not tested by this command' }, null, 2));
 }
 if (require.main === module) checkPackage(process.argv[2]).catch(error => { console.error(error); process.exitCode = 1; });
 module.exports = { checkPackage, verifySignature, machoFiles, verifyArchitectures, verifySourceInventory };

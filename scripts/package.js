@@ -1,5 +1,6 @@
 const { spawnSync } = require('node:child_process');
 const { join } = require('node:path');
+const { releaseSigningMode } = require('./signing-config');
 const root = join(__dirname, '..');
 const targetArch = 'arm64';
 
@@ -26,6 +27,9 @@ function packageApp() {
   }
   run(join(root, 'node_modules/.bin/electron-forge'), ['package', '--platform=darwin', `--arch=${targetArch}`]);
   run(process.execPath, [join(__dirname, 'check-package.js')]);
+  if (releaseSigningMode() === 'developer-id') {
+    run(process.execPath, [join(__dirname, 'check-developer-id.js')]);
+  }
 }
 
 if (require.main === module) {
