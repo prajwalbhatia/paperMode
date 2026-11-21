@@ -6,16 +6,18 @@ const { HelperSession } = require('./session');
 const { UsageGuide } = require('./guide');
 const { GuideWindow } = require('./guide-window');
 const { checkForUpdates } = require('./updates');
+const { AutomaticUpdateAlerts } = require('./automatic-updates');
 const { version, paperModeReleaseTag } = require('../../package.json');
 const START_SHORTCUT = 'Control+Alt+Command+P';
 const smokeTest = process.argv.includes('--smoke-test');
 const bounded = !app.isPackaged && process.argv.includes('--bounded-locks');
-let tray, controller, refreshTimer, guide;
+let tray, controller, refreshTimer, guide, updateAlerts;
 let quitting = false;
 let exitCode = 0;
 let canExit = false;
 let shortcutRegistered = false;
 let checkingUpdates = false;
+let updateDialogOpen = false;
 
 const messages = {
   shortcut: 'Unlocked with the shortcut.',
@@ -51,14 +53,10 @@ async function enableAccessibility() {
     catch { controller.update('error', 'permission-request-failed'); }
   }
 }
-async function checkUpdates() {
-  if (quitting || smokeTest || guide?.isOpen || controller.session || controller.busy || checkingUpdates) return;
-  checkingUpdates = true;
+async function showRelease(release) {
+  updateDialogOpen = true;
   render();
-  let openingRelease = false;
   try {
-    const release = await checkForUpdates();
-    if (quitting || controller.session || guide?.isOpen) return;
     const result = await dialog.showMessageBox(release ? {
       type: 'info', title: 'PaperMode', message: `PaperMode ${release.tag} is available`,
       detail: `${release.notes || 'See the release page for details.'}\n\nQuit PaperMode before replacing the app.`,
@@ -70,21 +68,35 @@ async function checkUpdates() {
       buttons: ['OK'], noLink: true
     });
     if (release && result.response === 0 && !quitting) {
-      openingRelease = true;
-      await shell.openExternal(release.url);
+      try { await shell.openExternal(release.url); }
+      catch {
+        if (!quitting) await dialog.showMessageBox({
+          type: 'warning', title: 'PaperMode', message: 'Could not open the release page',
+          detail: 'Open PaperMode’s GitHub Releases page in your browser.', buttons: ['OK'], noLink: true
+        });
+      }
     }
+  } finally { updateDialogOpen = false; if (!quitting) render(); }
+}
+async function checkUpdates() {
+  if (quitting || smokeTest || guide?.isOpen || controller.session || controller.busy || checkingUpdates || updateDialogOpen) return;
+  checkingUpdates = true;
+  render();
+  try {
+    const release = await checkForUpdates();
+    if (quitting || controller.session || guide?.isOpen) return;
+    await showRelease(release);
+    updateAlerts?.recordManualResult(release);
   } catch {
     if (!quitting && !controller.session) await dialog.showMessageBox({
-      type: 'warning', title: 'PaperMode',
-      message: openingRelease ? 'Could not open the release page' : 'Could not check for updates',
-      detail: openingRelease ? 'Open PaperMode’s GitHub Releases page in your browser.' :
-        'GitHub may be unavailable or your internet connection may be offline. Try again later.',
+      type: 'warning', title: 'PaperMode', message: 'Could not check for updates',
+      detail: 'GitHub may be unavailable or your internet connection may be offline. Try again later.',
       buttons: ['OK'], noLink: true
     });
-  } finally { checkingUpdates = false; if (!quitting) render(); }
+  } finally { checkingUpdates = false; if (!quitting) { render(); updateAlerts?.onStateChange(); } }
 }
 function startSession() {
-  if (quitting || smokeTest || checkingUpdates) return;
+  if (quitting || smokeTest || checkingUpdates || updateDialogOpen) return;
   if (guide?.isOpen) { guide.notifyStartBlocked(); return; }
   void controller.start();
 }
@@ -107,12 +119,12 @@ function render() {
     { label: 'Unlock: hold ⌃⌥⌘L for 2 seconds', enabled: false },
     ...(reason ? [{ label: messages[reason] || 'Could not maintain the session. Check permission and try again.', enabled: false }] : []),
     { type: 'separator' },
-    { label: 'Start PaperMode', enabled: !quitting && !smokeTest && !guide?.isOpen && !checkingUpdates && state === 'ready' && !controller.session && !controller.busy,
+    { label: 'Start PaperMode', enabled: !quitting && !smokeTest && !guide?.isOpen && !checkingUpdates && !updateDialogOpen && state === 'ready' && !controller.session && !controller.busy,
       click: startSession },
     { label: 'Enable Accessibility…', enabled: !guide?.isOpen && !controller.session && !controller.busy, click: enableAccessibility },
     { label: 'Check permission and layout', enabled: !guide?.isOpen && !controller.session && !controller.busy, click: () => void controller.refresh() },
     { label: 'How to use PaperMode', enabled: !guide?.isOpen && !controller.session && !controller.busy, click: () => void guide.show() },
-    { label: checkingUpdates ? 'Checking for updates…' : 'Check for Updates…', enabled: !quitting && !smokeTest && !guide?.isOpen && !controller.session && !controller.busy && !checkingUpdates,
+    { label: checkingUpdates ? 'Checking for updates…' : updateDialogOpen ? 'Update message open…' : 'Check for Updates…', enabled: !quitting && !smokeTest && !guide?.isOpen && !controller.session && !controller.busy && !checkingUpdates && !updateDialogOpen,
       click: () => void checkUpdates() },
     { type: 'separator' },
     { label: 'Quit PaperMode', click: () => app.quit() }
@@ -137,10 +149,17 @@ else {
       canShow: () => !quitting && !controller.session && !controller.busy,
       needsPermission: () => controller.report?.accessibilityTrusted !== true,
       requestPermission: enableAccessibility,
-      onVisibilityChange: render,
+      onVisibilityChange: () => { render(); updateAlerts?.onStateChange(); },
       onError: () => { if (!quitting) controller.update('error', 'help-unavailable'); }
     });
-    controller.on('change', render);
+    controller.on('change', () => { render(); updateAlerts?.onStateChange(); });
+    updateAlerts = new AutomaticUpdateAlerts(join(app.getPath('userData'), 'update-alerts.json'), {
+      check: checkForUpdates,
+      notify: showRelease,
+      canNotify: () => !quitting && !smokeTest && !checkingUpdates && !updateDialogOpen &&
+        !guide?.isOpen && !controller.session && !controller.busy &&
+        !['starting', 'locked'].includes(controller.snapshot.state)
+    });
     registerStartShortcut();
     render();
     await controller.refresh();
@@ -161,6 +180,7 @@ else {
     powerMonitor.on('lock-screen', () => void controller.cancel());
     powerMonitor.on('resume', () => void controller.refresh());
     if (!bounded) await guide.show({ firstUse: true });
+    if (!quitting) updateAlerts.start();
   }).catch(error => { console.error(error.message); exitCode = 1; app.quit(); });
   app.on('window-all-closed', () => {});
   app.on('before-quit', event => {
@@ -169,6 +189,7 @@ else {
     if (quitting) return;
     quitting = true;
     clearInterval(refreshTimer);
+    updateAlerts?.stop();
     globalShortcut.unregisterAll();
     // Native parent-exit/EOF recovery remains independent if Electron is killed.
     const deadline = setTimeout(() => app.exit(1), 2500);

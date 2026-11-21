@@ -23,7 +23,7 @@ Quit before replacing PaperMode. Development-host grants such as VS Code do not 
 
 If PaperMode says **Permission required** while its Accessibility switch is already enabled: quit PaperMode, open **System Settings → Privacy & Security → Accessibility**, select and remove only PaperMode's entry, then reopen **Applications → PaperMode**. Add PaperMode with **+** if it is missing, enable its switch, and choose **Check permission and layout** from PaperMode's menu. Do not reset permissions for unrelated apps.
 
-To look for a newer release, choose **Check for Updates…** from PaperMode's menu while unlocked. The app checks the official GitHub releases and shows release notes and a link when a newer version exists. It does not download or install updates automatically. Quit PaperMode before replacing it with a downloaded version.
+PaperMode checks the official GitHub releases shortly after launch and about once a day while idle. If it finds a newer release, it shows its notes and a link once; it waits until the lock and guide are closed. Choose **Check for Updates…** from the menu for an immediate check. PaperMode does not download or install updates automatically. Quit it before replacing it with a downloaded version.
 
 ## Use
 

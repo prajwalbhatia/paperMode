@@ -46,7 +46,9 @@ test('menu denial, Not now, explicit permission recovery and start under persist
     powerMonitor: new EventEmitter()};
   vm.runInNewContext(readFileSync(join(__dirname, '../src/main/index.js'), 'utf8'), {
     require: id => ({electron, 'node:path': require('node:path'), '../../package.json': require('../package.json'),
-      './updates': { checkForUpdates: async () => null }, './helper': {helperPath: () => 'unused'},
+      './updates': { checkForUpdates: async () => null },
+      './automatic-updates': { AutomaticUpdateAlerts: class { start() {} stop() {} onStateChange() {} recordManualResult() {} } },
+      './helper': {helperPath: () => 'unused'},
       './controller': {SessionController: Controller}, './session': {}, './guide': {UsageGuide},
       './guide-window': {GuideWindow: class {async showMessageBox(options) {guideOptions = options; return {response: choice};}}}
     })[id],

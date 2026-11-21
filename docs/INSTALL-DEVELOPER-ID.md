@@ -25,7 +25,7 @@ External keyboard and mouse coverage remains unverified. Power and unknown syste
 
 ## Update or remove
 
-Choose **Check for Updates…** from the menu while unlocked to check the official GitHub releases. PaperMode shows a newer release's notes and link; it does not install it automatically. Quit PaperMode before replacing it with a newer release.
+PaperMode checks the official GitHub releases shortly after launch and about once a day while idle. It shows a newer release's notes and link once, after any lock or guide closes. Choose **Check for Updates…** from the menu for an immediate check. PaperMode does not download or install updates automatically. Quit it before replacing it with a newer release.
 
 If Accessibility remains unavailable while PaperMode's switch is enabled, quit the app, remove only its stale entry in **System Settings → Privacy & Security → Accessibility**, then reopen **Applications → PaperMode**. Add it with **+** if needed, enable it, and choose **Check permission and layout**. Leave other apps' permissions alone.
 

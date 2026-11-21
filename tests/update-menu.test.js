@@ -6,12 +6,13 @@ const { join } = require('node:path');
 const vm = require('node:vm');
 
 test('manual update check shows notes, opens the selected release, and never starts a lock', async () => {
-  let menu, resolveCheck, starts = 0, opened, options;
+  let menu, resolveCheck, starts = 0, opened, options, controller, alerts;
   const app = Object.assign(new EventEmitter(), {
     getPath: () => '/unused-test-profile', setName() {}, requestSingleInstanceLock: () => true,
     whenReady: () => Promise.resolve(), dock: { hide() {} }
   });
   class Controller extends EventEmitter {
+    constructor() { super(); controller = this; }
     snapshot = { state: 'ready' };
     async refresh() {}
     start() { starts++; }
@@ -32,12 +33,21 @@ test('manual update check shows notes, opens the selected release, and never sta
       './helper': { helperPath: () => 'helper' }, './controller': { SessionController: Controller },
       './session': {}, './guide': { UsageGuide: class { async show() {} } },
       './guide-window': { GuideWindow: class {} },
+      './automatic-updates': { AutomaticUpdateAlerts: class {
+        constructor(_path, settings) { alerts = this; this.settings = settings; }
+        start() { this.started = true; }
+        stop() {} onStateChange() {} recordManualResult() {}
+      } },
       './updates': { checkForUpdates: () => new Promise(resolve => { resolveCheck = resolve; }) }
     })[id],
     __dirname, process: { argv: [] }, console,
     setInterval() {}, clearInterval() {}, setTimeout, clearTimeout
   });
   await new Promise(resolve => setImmediate(resolve));
+  assert.equal(alerts.started, true);
+  controller.session = {};
+  assert.equal(alerts.settings.canNotify(), false, 'automatic alerts must not interrupt a lock');
+  controller.session = null;
   menu.find(item => item.label === 'Check for Updates…').click();
   assert.ok(menu.some(item => item.label === 'Checking for updates…'));
   assert.equal(menu.find(item => item.label === 'Start PaperMode').enabled, false);
