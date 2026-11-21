@@ -6,7 +6,7 @@ const { HelperSession } = require('./session');
 const { UsageGuide } = require('./guide');
 const { GuideWindow } = require('./guide-window');
 const { checkForUpdates } = require('./updates');
-const { paperModeReleaseTag } = require('../../package.json');
+const { version, paperModeReleaseTag } = require('../../package.json');
 const START_SHORTCUT = 'Control+Alt+Command+P';
 const smokeTest = process.argv.includes('--smoke-test');
 const bounded = !app.isPackaged && process.argv.includes('--bounded-locks');
@@ -65,7 +65,8 @@ async function checkUpdates() {
       buttons: ['View release', 'Later'], defaultId: 0, cancelId: 1, noLink: true
     } : {
       type: 'info', title: 'PaperMode', message: 'No newer PaperMode release found',
-      detail: `Current release: ${paperModeReleaseTag}. Check again later.`,
+      detail: paperModeReleaseTag ? `Current release: ${paperModeReleaseTag}. Check again later.` :
+        `Current build: local ${version} (unreleased). Check again later.`,
       buttons: ['OK'], noLink: true
     });
     if (release && result.response === 0 && !quitting) {

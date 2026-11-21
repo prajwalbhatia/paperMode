@@ -3,8 +3,10 @@ const assert = require('node:assert/strict');
 const { checkForUpdates, compareTags, newestRelease } = require('../src/main/updates');
 const { version, paperModeReleaseTag } = require('../package.json');
 
-test('installed release tag matches the packaged app version', () => {
-  assert.match(paperModeReleaseTag, new RegExp(`^v${version.replaceAll('.', '\\.')}(?:-preview\\.\\d+)?$`));
+test('local build does not claim the published preview tag', () => {
+  assert.equal(paperModeReleaseTag, null);
+  assert.equal(newestRelease([{ tag_name: `v${version}-preview.1` }]), null);
+  assert.equal(newestRelease([{ tag_name: 'v0.2.0-preview.1' }]).tag_name, 'v0.2.0-preview.1');
 });
 
 test('release order handles preview and stable versions', () => {
@@ -25,13 +27,13 @@ test('check selects the newest published release and constructs a trusted URL', 
       { tag_name: 'v0.1.0', draft: false, body: 'Stable notes' }
     ] };
   };
-  assert.deepEqual(await checkForUpdates({ request }), {
+  assert.deepEqual(await checkForUpdates({ request, currentTag: 'v0.1.0-preview.1' }), {
     tag: 'v0.1.0', notes: 'Stable notes',
     url: 'https://github.com/prajwalbhatia/paperMode/releases/tag/v0.1.0'
   });
 });
 
-test('current preview reports no newer release and invalid responses fail', async () => {
+test('local version reports no older preview and invalid responses fail', async () => {
   assert.equal(newestRelease([{ tag_name: 'v0.1.0-preview.1' }]), null);
   await assert.rejects(checkForUpdates({ request: async () => ({ ok: false }) }), /GitHub release check failed/);
   await assert.rejects(checkForUpdates({ request: async () => ({ ok: true, json: async () => ({}) }) }), /Invalid release information/);

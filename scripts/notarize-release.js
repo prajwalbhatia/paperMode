@@ -48,6 +48,7 @@ function publishWithoutReplace(candidate, finalPath) {
 async function notarize(bundle = defaultBundle) {
   const profile = notaryProfile();
   const packageJson = require(join(root, 'package.json'));
+  if (packageJson.paperModeReleaseTag !== `v${packageJson.version}`) throw new Error('Set paperModeReleaseTag to the matching stable tag before notarization');
   if (!existsSync(bundle)) throw new Error(`Signed app bundle not found: ${bundle}`);
   checkDeveloperId(bundle);
   const outputDir = join(root, 'out', 'notarized');
