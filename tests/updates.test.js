@@ -3,9 +3,10 @@ const assert = require('node:assert/strict');
 const { checkForUpdates, compareTags, newestRelease } = require('../src/main/updates');
 const { version, paperModeReleaseTag } = require('../package.json');
 
-test('local build does not claim the published preview tag', () => {
-  assert.equal(paperModeReleaseTag, null);
-  assert.equal(newestRelease([{ tag_name: `v${version}-preview.1` }]), null);
+test('preview build compares releases against its own tag', () => {
+  assert.equal(paperModeReleaseTag, `v${version}-preview.1`);
+  assert.equal(newestRelease([{ tag_name: 'v0.1.0-preview.1' }]), null);
+  assert.equal(newestRelease([{ tag_name: paperModeReleaseTag }]), null);
   assert.equal(newestRelease([{ tag_name: 'v0.2.0-preview.1' }]).tag_name, 'v0.2.0-preview.1');
 });
 
@@ -33,7 +34,7 @@ test('check selects the newest published release and constructs a trusted URL', 
   });
 });
 
-test('local version reports no older preview and invalid responses fail', async () => {
+test('release check rejects older previews and invalid responses', async () => {
   assert.equal(newestRelease([{ tag_name: 'v0.1.0-preview.1' }]), null);
   await assert.rejects(checkForUpdates({ request: async () => ({ ok: false }) }), /GitHub release check failed/);
   await assert.rejects(checkForUpdates({ request: async () => ({ ok: true, json: async () => ({}) }) }), /Invalid release information/);

@@ -2,13 +2,13 @@
 
 ## Current availability
 
-PaperMode's first preview is ad-hoc signed and **not Developer ID signed or notarized by Apple**. It is intended for early testing, not a stable release. Download only from the [official GitHub Releases page](https://github.com/prajwalbhatia/paperMode/releases). Draft releases are visible only to repository collaborators until published.
+PaperMode previews are ad-hoc signed and **not Developer ID signed or notarized by Apple**. They are intended for early testing, not as stable releases. Download only from the [official GitHub Releases page](https://github.com/prajwalbhatia/paperMode/releases). Draft releases are visible only to repository collaborators until published.
 
 Current artifact: Apple Silicon (ARM64) only. Development and owner QA were performed on macOS 27.2.1. macOS 13 is the build deployment target, not a tested compatibility claim. Intel and older macOS runtime support are unverified.
 
 ## Install the GitHub preview
 
-1. Download `PaperMode-0.1.0-macos-arm64-unnotarized-preview.zip` from the official release's **Assets** section. Optionally download `SHA256SUMS.txt` to compare the archive checksum; a matching checksum checks consistency with the published asset, not independent trust in the publisher.
+1. Download `PaperMode-0.1.1-macos-arm64-unnotarized-preview.zip` from the official release's **Assets** section. Optionally download `SHA256SUMS.txt` to compare the archive checksum; a matching checksum checks consistency with the published asset, not independent trust in the publisher.
 2. Quit an existing PaperMode instance. Keep the previous build until replacement testing passes. Extract the ZIP and drag **PaperMode.app** into **Applications**, replacing the old copy if applicable. Run only one copy.
 3. Open **Applications → PaperMode** once. macOS may say it cannot verify PaperMode is free of malware, or that the developer cannot be verified. Dismiss that warning without moving the app to Trash.
 4. If you trust the official download, open **System Settings → Privacy & Security**, scroll to **Security**, and choose **Open Anyway** beside the PaperMode notice. Confirm opening and authenticate locally if prompted. The notice appears after an attempted launch; wording varies by macOS version. Managed Macs may prohibit this override.
@@ -23,7 +23,7 @@ Quit before replacing PaperMode. Development-host grants such as VS Code do not 
 
 If PaperMode says **Permission required** while its Accessibility switch is already enabled: quit PaperMode, open **System Settings → Privacy & Security → Accessibility**, select and remove only PaperMode's entry, then reopen **Applications → PaperMode**. Add PaperMode with **+** if it is missing, enable its switch, and choose **Check permission and layout** from PaperMode's menu. Do not reset permissions for unrelated apps.
 
-PaperMode checks the official GitHub releases shortly after launch and about once a day while idle. If it finds a newer release, it shows its notes and a link once; it waits until the lock and guide are closed. Choose **Check for Updates…** from the menu for an immediate check. PaperMode does not download or install updates automatically. Quit it before replacing it with a downloaded version.
+Starting with v0.1.1-preview.1, PaperMode checks the official GitHub releases shortly after launch and about once a day while idle. If it finds a newer release, it shows its notes and a link once; it waits until the lock and guide are closed. Choose **Check for Updates…** from the menu for an immediate check. The earlier v0.1.0-preview.1 does not have update alerts. PaperMode does not download or install updates automatically. Quit it before replacing it with a downloaded version.
 
 ## Use
 
