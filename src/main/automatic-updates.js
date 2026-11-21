@@ -1,6 +1,7 @@
 const { readFileSync, writeFileSync, renameSync, mkdirSync } = require('node:fs');
 const { dirname } = require('node:path');
 const { version, paperModeReleaseTag } = require('../../package.json');
+const { compareTags, parseTag } = require('./updates');
 
 const DAY = 24 * 60 * 60 * 1000;
 const HOUR = 60 * 60 * 1000;
@@ -11,12 +12,13 @@ class AutomaticUpdateAlerts {
     setTimer = setTimeout, clearTimer = clearTimeout,
     buildIdentity = paperModeReleaseTag || `local-${version}` } = {}) {
     Object.assign(this, { path, check, notify, canNotify, now, setTimer, clearTimer });
-    this.state = { buildIdentity, lastCheckedAt: 0, lastAlertedTag: null };
+    this.state = { buildIdentity, lastCheckedAt: 0, highestAlertedTag: null };
     try {
       const saved = JSON.parse(readFileSync(path, 'utf8'));
       if (saved.buildIdentity === buildIdentity) {
         if (Number.isFinite(saved.lastCheckedAt) && saved.lastCheckedAt >= 0) this.state.lastCheckedAt = saved.lastCheckedAt;
-        if (typeof saved.lastAlertedTag === 'string') this.state.lastAlertedTag = saved.lastAlertedTag;
+        const previousTag = saved.highestAlertedTag || saved.lastAlertedTag;
+        if (parseTag(previousTag)) this.state.highestAlertedTag = previousTag;
       }
     } catch { /* A missing or corrupt preference should not prevent checking. */ }
     this.pending = null;
@@ -46,6 +48,12 @@ class AutomaticUpdateAlerts {
     if (this.timer !== null) this.clearTimer(this.timer);
     this.timer = null;
   }
+  isNewerThanAlerted(tag) {
+    return parseTag(tag) && (!this.state.highestAlertedTag || compareTags(tag, this.state.highestAlertedTag) > 0);
+  }
+  rememberAlert(tag) {
+    if (this.isNewerThanAlerted(tag)) this.state.highestAlertedTag = tag;
+  }
   async deliver() {
     if (!this.active || !this.pending || this.delivering || !this.canNotify()) return;
     this.delivering = true;
@@ -53,7 +61,7 @@ class AutomaticUpdateAlerts {
     try {
       await this.notify(release);
       if (this.active) {
-        this.state.lastAlertedTag = release.tag;
+        this.rememberAlert(release.tag);
         this.pending = null;
         this.save();
       }
@@ -74,7 +82,7 @@ class AutomaticUpdateAlerts {
       const release = await this.check();
       if (!this.active) return;
       this.state.lastCheckedAt = this.now();
-      if (release && release.tag !== this.state.lastAlertedTag) this.pending = release;
+      if (release && this.isNewerThanAlerted(release.tag)) this.pending = release;
       await this.deliver();
       if (!this.pending) this.save();
       this.schedule(this.pending ? MINUTE : DAY);
@@ -86,8 +94,8 @@ class AutomaticUpdateAlerts {
   recordManualResult(release) {
     this.state.lastCheckedAt = this.now();
     if (release) {
-      this.state.lastAlertedTag = release.tag;
-      if (this.pending?.tag === release.tag) this.pending = null;
+      this.rememberAlert(release.tag);
+      if (this.pending && !this.isNewerThanAlerted(this.pending.tag)) this.pending = null;
     }
     this.save();
   }

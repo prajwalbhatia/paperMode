@@ -42,4 +42,4 @@ async function checkForUpdates({ request = fetch, currentTag = comparisonTag } =
   } : null;
 }
 
-module.exports = { checkForUpdates, compareTags, newestRelease, RELEASES_PAGE };
+module.exports = { checkForUpdates, compareTags, newestRelease, parseTag, RELEASES_PAGE };

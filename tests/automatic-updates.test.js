@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { mkdtempSync, readFileSync, rmSync } = require('node:fs');
+const { mkdtempSync, readFileSync, writeFileSync, rmSync } = require('node:fs');
 const { tmpdir } = require('node:os');
 const { join } = require('node:path');
 const { AutomaticUpdateAlerts, DAY, HOUR, MINUTE } = require('../src/main/automatic-updates');
@@ -30,7 +30,7 @@ test('checks after startup, alerts once, and remembers a release across restarts
   await first.tick();
   assert.equal(checks, 1);
   assert.equal(alerts, 1);
-  assert.equal(JSON.parse(readFileSync(path)).lastAlertedTag, release.tag);
+  assert.equal(JSON.parse(readFileSync(path)).highestAlertedTag, release.tag);
   first.stop();
 
   const second = new AutomaticUpdateAlerts(path, options);
@@ -89,6 +89,52 @@ test('network failure retries later and a manual result prevents duplicate alert
   await watcher.tick();
   assert.equal(scheduled().delay, HOUR);
   watcher.recordManualResult({ tag: 'v0.2.0-preview.1' });
-  assert.equal(JSON.parse(readFileSync(path)).lastAlertedTag, 'v0.2.0-preview.1');
+  assert.equal(JSON.parse(readFileSync(path)).highestAlertedTag, 'v0.2.0-preview.1');
   watcher.stop();
+});
+
+test('withdrawing a newer release does not announce an older release again', async t => {
+  const { config, path, advance } = setup(t);
+  let current = { tag: 'v0.2.0-preview.1' };
+  const shown = [];
+  const watcher = new AutomaticUpdateAlerts(path, {
+    ...config, canNotify: () => true, check: async () => current,
+    notify: async release => { shown.push(release.tag); }
+  });
+  watcher.start();
+  await watcher.tick();
+  advance(DAY);
+  current = { tag: 'v0.2.0-preview.2' };
+  await watcher.tick();
+  advance(DAY);
+  current = { tag: 'v0.2.0-preview.1' };
+  await watcher.tick();
+  assert.deepEqual(shown, ['v0.2.0-preview.1', 'v0.2.0-preview.2']);
+  assert.equal(JSON.parse(readFileSync(path)).highestAlertedTag, 'v0.2.0-preview.2');
+  watcher.stop();
+});
+
+test('manual checks cannot lower the highest announced release', async t => {
+  const { config, path } = setup(t);
+  const watcher = new AutomaticUpdateAlerts(path, {
+    ...config, canNotify: () => true, check: async () => null, notify: async () => {}
+  });
+  watcher.recordManualResult({ tag: 'v0.2.0-preview.2' });
+  watcher.recordManualResult({ tag: 'v0.2.0-preview.1' });
+  assert.equal(JSON.parse(readFileSync(path)).highestAlertedTag, 'v0.2.0-preview.2');
+});
+
+test('existing alert preferences migrate without repeating the old release', async t => {
+  const { config, path } = setup(t);
+  writeFileSync(path, JSON.stringify({ buildIdentity: 'local-0.1.0', lastCheckedAt: 0,
+    lastAlertedTag: 'v0.2.0-preview.2' }));
+  const shown = [];
+  const watcher = new AutomaticUpdateAlerts(path, {
+    ...config, canNotify: () => true,
+    check: async () => ({ tag: 'v0.2.0-preview.1' }),
+    notify: async release => { shown.push(release.tag); }
+  });
+  watcher.start(); await watcher.tick(); watcher.stop();
+  assert.deepEqual(shown, []);
+  assert.equal(JSON.parse(readFileSync(path)).highestAlertedTag, 'v0.2.0-preview.2');
 });
