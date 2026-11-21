@@ -17,6 +17,9 @@ async function prepare() {
   const prerelease = process.argv.includes('--prerelease');
   const pkg = JSON.parse(readFileSync(join(root, 'package.json')));
   const name = artifactName(pkg.version, prerelease);
+  if (prerelease && (!pkg.paperModeReleaseTag || !new RegExp(`^v${pkg.version.replaceAll('.', '\\.')}-preview\\.\\d+$`).test(pkg.paperModeReleaseTag))) {
+    throw new Error('Set paperModeReleaseTag to the matching preview tag before public prerelease packaging');
+  }
   if (prerelease && execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim()) {
     throw new Error('Prerelease packaging requires a clean committed source tree');
   }

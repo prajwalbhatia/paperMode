@@ -2,7 +2,7 @@
 
 ## Local candidate workflow
 
-Before building a new public version, update `version` and `paperModeReleaseTag` in `package.json` together. The menu's manual update check uses the release tag to compare the installed build with published GitHub releases.
+Local builds leave `paperModeReleaseTag` as `null` and identify themselves as unreleased. Before building a public preview, set it to the matching `v<version>-preview.<number>` tag; for a stable Developer ID release, set it to `v<version>`. The menu's manual update check uses that tag to compare a published build with GitHub releases.
 
 Use native ARM64 Node on macOS. From the repository root:
 

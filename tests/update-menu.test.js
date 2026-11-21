@@ -48,4 +48,8 @@ test('manual update check shows notes, opens the selected release, and never sta
   assert.equal(opened, 'https://github.com/prajwalbhatia/paperMode/releases/tag/v0.1.1-preview.1');
   assert.equal(starts, 0);
   assert.equal(menu.find(item => item.label === 'Start PaperMode').enabled, true);
+  menu.find(item => item.label === 'Check for Updates…').click();
+  resolveCheck(null);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.match(options.detail, /Current build: local 0\.1\.0 \(unreleased\)/);
 });

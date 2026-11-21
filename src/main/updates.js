@@ -1,4 +1,5 @@
-const { paperModeReleaseTag } = require('../../package.json');
+const { version, paperModeReleaseTag } = require('../../package.json');
+const comparisonTag = paperModeReleaseTag || `v${version}`;
 
 const RELEASES_API = 'https://api.github.com/repos/prajwalbhatia/paperMode/releases?per_page=30';
 const RELEASES_PAGE = 'https://github.com/prajwalbhatia/paperMode/releases';
@@ -20,14 +21,14 @@ function compareTags(left, right) {
   return Math.sign(a.preview - b.preview);
 }
 
-function newestRelease(releases, currentTag = paperModeReleaseTag) {
+function newestRelease(releases, currentTag = comparisonTag) {
   if (!parseTag(currentTag) || !Array.isArray(releases)) throw new Error('Invalid release information');
   return releases.filter(release => release && !release.draft && parseTag(release.tag_name) &&
     compareTags(release.tag_name, currentTag) > 0)
     .sort((a, b) => compareTags(b.tag_name, a.tag_name))[0] || null;
 }
 
-async function checkForUpdates({ request = fetch, currentTag = paperModeReleaseTag } = {}) {
+async function checkForUpdates({ request = fetch, currentTag = comparisonTag } = {}) {
   const response = await request(RELEASES_API, {
     headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'PaperMode' },
     signal: AbortSignal.timeout(8000), redirect: 'error'
