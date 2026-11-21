@@ -2,7 +2,7 @@
 
 ## Automated and package checks
 
-- [x] JavaScript tests passed on the development Mac, including release ordering, published-release filtering, and the menu action.
+- [x] JavaScript tests passed on the development Mac, including release ordering, published-release filtering, the menu action, and A → B → A withdrawal without repeating A's alert.
 - [x] The live check of PaperMode's GitHub releases found no release newer than the local `0.1.0` build baseline.
 - [x] The rebuilt local app launched and completed its first automatic background check after the startup delay; it recorded `local-0.1.0` without announcing an older release.
 - [x] The ARM64 package passed structural verification. This does not establish first-launch or permission behavior.
