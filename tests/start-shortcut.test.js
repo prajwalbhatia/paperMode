@@ -30,7 +30,9 @@ test('menu can start during a persistent shortcut conflict; retries recover with
       powerMonitor: new EventEmitter() };
     vm.runInNewContext(readFileSync(join(__dirname, '../src/main/index.js'), 'utf8'), {
       require: id => ({ electron, 'node:path': require('node:path'), '../../package.json': require('../package.json'),
-        './updates': { checkForUpdates: async () => null }, './helper': { helperPath: () => 'helper' },
+        './updates': { checkForUpdates: async () => null },
+        './automatic-updates': { AutomaticUpdateAlerts: class { start() {} stop() {} onStateChange() {} recordManualResult() {} } },
+        './helper': { helperPath: () => 'helper' },
         './guide': { UsageGuide: class { constructor() { guide = this; } async show() {} notifyStartBlocked() { notices++; } } },
         './guide-window': { GuideWindow: class {} },
         './controller': { SessionController: Controller }, './session': { HelperSession: class {} } })[id],
