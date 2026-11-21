@@ -2,7 +2,7 @@
 
 ## Local candidate workflow
 
-Local builds leave `paperModeReleaseTag` as `null` and identify themselves as unreleased. Before building a public preview, set it to the matching `v<version>-preview.<number>` tag; for a stable Developer ID release, set it to `v<version>`. The menu's manual update check uses that tag to compare a published build with GitHub releases.
+Unreleased development builds leave `paperModeReleaseTag` as `null`. Public preview builds set it to the matching `v<version>-preview.<number>` tag; stable Developer ID builds use `v<version>`. The menu's update checks use that tag to compare the installed build with GitHub releases.
 
 Use native ARM64 Node on macOS. From the repository root:
 
@@ -14,7 +14,7 @@ npm run release:local
 
 The command rebuilds the helper and app, verifies the packaged bundle, creates a versioned ZIP, extracts it into a temporary verification directory, and repeats package checks on the extracted app. Successful output is printed under a unique `out/release-local-*` directory:
 
-- `PaperMode-0.1.0-macos-arm64-local-qa.zip` (version comes from package.json)
+- `PaperMode-<version>-macos-arm64-local-qa.zip` (version comes from package.json)
 - `SHA256SUMS.txt`
 - `manifest.json`, including source commit, dirty-tree status, architecture and actual signing status
 
@@ -43,6 +43,8 @@ Complete `LOCAL-RELEASE-CHECKLIST.md`, record final-artifact QA against its chec
 
 ## Unnotarized preview workflow
 
-From a clean committed tree, run `npm run release:preview`. This uses the same archive verification but names the ZIP `PaperMode-0.1.0-macos-arm64-unnotarized-preview.zip` and bundles `UNNOTARIZED-PREVIEW.txt`. The app version remains 0.1.0; the first GitHub preview tag is `v0.1.0-preview.1`. The manifest describes build-time state and does not itself authorize publication.
+From a clean committed tree, run `npm run release:preview`. This uses the same archive verification but names the ZIP `PaperMode-<version>-macos-arm64-unnotarized-preview.zip` and bundles `UNNOTARIZED-PREVIEW.txt`. For the next preview, the app version is `0.1.1` and the GitHub tag is `v0.1.1-preview.1`. The manifest describes build-time state and does not itself authorize publication.
 
 Upload the ZIP, SHA256SUMS.txt, manifest.json and INSTALL.md to a **draft prerelease** targeting the exact build commit. Download its asset through a browser while signed into GitHub to exercise quarantine, extraction, per-app Open Anyway, Applications installation and Accessibility permission. CLI downloads alone do not establish this flow. Record checksum and observations before publishing the draft. This existing development Mac cannot establish clean-machine behavior because earlier permissions/approvals may persist.
+
+Keep the website's existing download link pointed at the published preview until the new prerelease is public. After publishing and verifying the new asset URL, update both website download buttons and displayed version in a follow-up change.

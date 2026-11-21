@@ -130,7 +130,7 @@ test('existing alert preferences migrate without repeating the old release', asy
     lastAlertedTag: 'v0.2.0-preview.2' }));
   const shown = [];
   const watcher = new AutomaticUpdateAlerts(path, {
-    ...config, canNotify: () => true,
+    ...config, buildIdentity: 'local-0.1.0', canNotify: () => true,
     check: async () => ({ tag: 'v0.2.0-preview.1' }),
     notify: async release => { shown.push(release.tag); }
   });

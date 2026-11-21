@@ -4,14 +4,14 @@ import Foundation
 
 let arguments = Array(CommandLine.arguments.dropFirst())
 if arguments == ["--version"] {
-    print("0.1.0")
+    print("0.1.1")
 } else if arguments == ["--check-accessibility"] {
     // Internal, non-prompting probe: no AppKit session or input interception.
     // Bound its lifetime even if the lock helper itself is killed.
     alarm(3)
     exit(AXIsProcessTrusted() ? 0 : 2)
 } else if arguments == ["--diagnose"] {
-    emit(["name": "papermode-helper", "protocolVersion": 1, "version": "0.1.0",
+    emit(["name": "papermode-helper", "protocolVersion": 1, "version": "0.1.1",
           "osVersion": ProcessInfo.processInfo.operatingSystemVersionString,
           "inputLockImplemented": true, "accessibilityTrusted": AXIsProcessTrusted(),
           "keyboardSourceID": currentKeyboardSourceID() ?? "unknown",

@@ -6,7 +6,7 @@ The Electron menu bar app and native input lock have passed core development-Mac
 
 ## Install and use
 
-An Apple Silicon preview is being prepared for GitHub Releases. It is ad-hoc signed and not notarized by Apple; macOS may require a per-app Open Anyway approval. It is not a stable release. See [installation, permission, and removal instructions](docs/INSTALL.md).
+An Apple Silicon preview is available on GitHub Releases. It is ad-hoc signed and not notarized by Apple; macOS may require a per-app Open Anyway approval. It is not a stable release. See [installation, permission, and removal instructions](docs/INSTALL.md).
 
 | Action | Shortcut |
 | --- | --- |
