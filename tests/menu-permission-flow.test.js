@@ -45,7 +45,8 @@ test('menu denial, Not now, explicit permission recovery and start under persist
     shell: {openExternal: async url => { assert.match(url, /^x-apple\.systempreferences:/); settingsOpened++; }},
     powerMonitor: new EventEmitter()};
   vm.runInNewContext(readFileSync(join(__dirname, '../src/main/index.js'), 'utf8'), {
-    require: id => ({electron, 'node:path': require('node:path'), './helper': {helperPath: () => 'unused'},
+    require: id => ({electron, 'node:path': require('node:path'), '../../package.json': require('../package.json'),
+      './updates': { checkForUpdates: async () => null }, './helper': {helperPath: () => 'unused'},
       './controller': {SessionController: Controller}, './session': {}, './guide': {UsageGuide},
       './guide-window': {GuideWindow: class {async showMessageBox(options) {guideOptions = options; return {response: choice};}}}
     })[id],
@@ -60,6 +61,7 @@ test('menu denial, Not now, explicit permission recovery and start under persist
   assert.equal(sessions, 0);
   item('How to use PaperMode').click(); await flush();
   assert.deepEqual(guideOptions.buttons, ['Enable Accessibility…', 'Not now']);
+  assert.match(guideOptions.detail, /If PaperMode is already enabled/);
   assert.equal(requests, 0); assert.equal(settingsOpened, 0); assert.equal(sessions, 0);
   choice = 0;
   item('How to use PaperMode').click(); await flush();

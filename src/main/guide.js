@@ -7,7 +7,8 @@ const instructions = [
   '3. Unlock deliberately\nLift the notebook and hold Control + Option + Command + L together for two seconds. Releasing early resets the hold. The reminder stays visible while input is locked.',
   'Play/pause while locked (experimental)\nBring your video to the front in Chrome or Safari before starting PaperMode. When play/pause is available, lift the notebook and press Control + Option + Command + Space once to pause or resume. Release the keys before pressing again. PaperMode controls the player selected when the session started. Support is limited to compatible players with English controls. If the video does not respond or play/pause is unavailable, unlock and use the player normally.',
   'All connected keyboards and pointing devices are blocked. Normal sessions have no time limit. Hardware power/Touch ID and macOS security controls are outside PaperMode’s guarantee.'
-].join('\n\n');
+];
+const permissionRecovery = 'Permission still required?\nIf PaperMode is already enabled in System Settings → Privacy & Security → Accessibility, close this guide and quit PaperMode. Remove only PaperMode’s entry from the Accessibility list, then reopen the copy in Applications. Add it with + if it is missing, enable it, and choose Check permission and layout from the menu. Do not remove other apps’ permissions.';
 
 class UsageGuide {
   constructor(path, { dialog, canShow, needsPermission, requestPermission, onVisibilityChange = () => {}, onError = () => {} }) {
@@ -39,7 +40,7 @@ class UsageGuide {
         type: 'info', title: 'PaperMode',
         icon: join(__dirname, '../../assets/PaperMode.png'),
         message: firstUse ? 'Welcome to PaperMode' : 'Watch your course. Take paper notes.',
-        detail: instructions,
+        detail: (permission ? [instructions[0], permissionRecovery, ...instructions.slice(1)] : instructions).join('\n\n'),
         buttons: permission ? ['Enable Accessibility…', 'Not now'] : ['Got it'],
         defaultId: 0, cancelId: permission ? 1 : 0, noLink: true
       });

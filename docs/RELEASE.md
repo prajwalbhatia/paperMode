@@ -2,6 +2,8 @@
 
 ## Local candidate workflow
 
+Before building a new public version, update `version` and `paperModeReleaseTag` in `package.json` together. The menu's manual update check uses the release tag to compare the installed build with published GitHub releases.
+
 Use native ARM64 Node on macOS. From the repository root:
 
 ```sh

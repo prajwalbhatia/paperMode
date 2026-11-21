@@ -13,7 +13,7 @@ Current artifact: Apple Silicon (ARM64) only. Development and owner QA were perf
 3. Open **Applications → PaperMode** once. macOS may say it cannot verify PaperMode is free of malware, or that the developer cannot be verified. Dismiss that warning without moving the app to Trash.
 4. If you trust the official download, open **System Settings → Privacy & Security**, scroll to **Security**, and choose **Open Anyway** beside the PaperMode notice. Confirm opening and authenticate locally if prompted. The notice appears after an attempted launch; wording varies by macOS version. Managed Macs may prohibit this override.
 5. PaperMode appears as a paper icon in the menu bar, not a normal main window. Open **How to use PaperMode** and choose **Enable Accessibility…** if needed. In **Privacy & Security → Accessibility**, enable **PaperMode** and authenticate locally if prompted.
-6. Close the guide, then choose **Check permission and layout** in PaperMode's menu. Wait for **Ready**. Start is disabled while Help is open. If permission still appears missing, quit and reopen the installed copy and check again.
+6. Close the guide, then choose **Check permission and layout** in PaperMode's menu. Wait for **Ready**. Start is disabled while Help is open. If permission still appears missing even though PaperMode is enabled in Settings, follow the recovery steps below.
 
 This is Apple's per-app exception flow: [Safely open apps on your Mac](https://support.apple.com/102445). Do not disable Gatekeeper globally or remove quarantine attributes to bypass the check. If macOS reports actual malware or a damaged app, stop and report the exact warning rather than treating it as the expected unidentified-developer notice.
 
@@ -21,7 +21,9 @@ This is Apple's per-app exception flow: [Safely open apps on your Mac](https://s
 
 Quit before replacing PaperMode. Development-host grants such as VS Code do not necessarily cover the installed app. Always reopen the copy in Applications after an update so an old development build does not remain active.
 
-If replacing an ad-hoc build invalidates its permission identity, remove the stale PaperMode entry using Accessibility settings, reopen the intended installed copy, and grant that copy permission. Do not reset permissions for unrelated apps.
+If PaperMode says **Permission required** while its Accessibility switch is already enabled: quit PaperMode, open **System Settings → Privacy & Security → Accessibility**, select and remove only PaperMode's entry, then reopen **Applications → PaperMode**. Add PaperMode with **+** if it is missing, enable its switch, and choose **Check permission and layout** from PaperMode's menu. Do not reset permissions for unrelated apps.
+
+To look for a newer release, choose **Check for Updates…** from PaperMode's menu while unlocked. The app checks the official GitHub releases and shows release notes and a link when a newer version exists. It does not download or install updates automatically. Quit PaperMode before replacing it with a downloaded version.
 
 ## Use
 

@@ -1,10 +1,12 @@
-const { app, Tray, Menu, nativeImage, BrowserWindow, ipcMain, screen, globalShortcut, shell, powerMonitor } = require('electron');
+const { app, Tray, Menu, nativeImage, BrowserWindow, ipcMain, screen, globalShortcut, shell, powerMonitor, dialog } = require('electron');
 const { join } = require('node:path');
 const { helperPath, diagnose } = require('./helper');
 const { SessionController } = require('./controller');
 const { HelperSession } = require('./session');
 const { UsageGuide } = require('./guide');
 const { GuideWindow } = require('./guide-window');
+const { checkForUpdates } = require('./updates');
+const { paperModeReleaseTag } = require('../../package.json');
 const START_SHORTCUT = 'Control+Alt+Command+P';
 const smokeTest = process.argv.includes('--smoke-test');
 const bounded = !app.isPackaged && process.argv.includes('--bounded-locks');
@@ -13,6 +15,7 @@ let quitting = false;
 let exitCode = 0;
 let canExit = false;
 let shortcutRegistered = false;
+let checkingUpdates = false;
 
 const messages = {
   shortcut: 'Unlocked with the shortcut.',
@@ -20,7 +23,7 @@ const messages = {
   'session-inactive': 'Session ended when your Mac was locked.',
   'app-quit': 'Session ended.',
   'development-test-ended': 'Development safety limit reached.',
-  'accessibility-required': 'Enable Accessibility, then check permission again.',
+  'accessibility-required': 'Enable Accessibility. If it is already on, open the guide for recovery steps.',
   'permission-revoked': 'Accessibility permission was removed. Input has been released.',
   'unsupported-keyboard-layout': 'Select a layout with L at the standard keyboard position.',
   'keyboard-layout-changed': 'The keyboard layout changed. Check permission and layout before restarting.',
@@ -48,8 +51,39 @@ async function enableAccessibility() {
     catch { controller.update('error', 'permission-request-failed'); }
   }
 }
+async function checkUpdates() {
+  if (quitting || smokeTest || guide?.isOpen || controller.session || controller.busy || checkingUpdates) return;
+  checkingUpdates = true;
+  render();
+  let openingRelease = false;
+  try {
+    const release = await checkForUpdates();
+    if (quitting || controller.session || guide?.isOpen) return;
+    const result = await dialog.showMessageBox(release ? {
+      type: 'info', title: 'PaperMode', message: `PaperMode ${release.tag} is available`,
+      detail: `${release.notes || 'See the release page for details.'}\n\nQuit PaperMode before replacing the app.`,
+      buttons: ['View release', 'Later'], defaultId: 0, cancelId: 1, noLink: true
+    } : {
+      type: 'info', title: 'PaperMode', message: 'No newer PaperMode release found',
+      detail: `Current release: ${paperModeReleaseTag}. Check again later.`,
+      buttons: ['OK'], noLink: true
+    });
+    if (release && result.response === 0 && !quitting) {
+      openingRelease = true;
+      await shell.openExternal(release.url);
+    }
+  } catch {
+    if (!quitting && !controller.session) await dialog.showMessageBox({
+      type: 'warning', title: 'PaperMode',
+      message: openingRelease ? 'Could not open the release page' : 'Could not check for updates',
+      detail: openingRelease ? 'Open PaperMode’s GitHub Releases page in your browser.' :
+        'GitHub may be unavailable or your internet connection may be offline. Try again later.',
+      buttons: ['OK'], noLink: true
+    });
+  } finally { checkingUpdates = false; if (!quitting) render(); }
+}
 function startSession() {
-  if (quitting || smokeTest) return;
+  if (quitting || smokeTest || checkingUpdates) return;
   if (guide?.isOpen) { guide.notifyStartBlocked(); return; }
   void controller.start();
 }
@@ -72,11 +106,13 @@ function render() {
     { label: 'Unlock: hold ⌃⌥⌘L for 2 seconds', enabled: false },
     ...(reason ? [{ label: messages[reason] || 'Could not maintain the session. Check permission and try again.', enabled: false }] : []),
     { type: 'separator' },
-    { label: 'Start PaperMode', enabled: !quitting && !smokeTest && !guide?.isOpen && state === 'ready' && !controller.session && !controller.busy,
+    { label: 'Start PaperMode', enabled: !quitting && !smokeTest && !guide?.isOpen && !checkingUpdates && state === 'ready' && !controller.session && !controller.busy,
       click: startSession },
     { label: 'Enable Accessibility…', enabled: !guide?.isOpen && !controller.session && !controller.busy, click: enableAccessibility },
     { label: 'Check permission and layout', enabled: !guide?.isOpen && !controller.session && !controller.busy, click: () => void controller.refresh() },
     { label: 'How to use PaperMode', enabled: !guide?.isOpen && !controller.session && !controller.busy, click: () => void guide.show() },
+    { label: checkingUpdates ? 'Checking for updates…' : 'Check for Updates…', enabled: !quitting && !smokeTest && !guide?.isOpen && !controller.session && !controller.busy && !checkingUpdates,
+      click: () => void checkUpdates() },
     { type: 'separator' },
     { label: 'Quit PaperMode', click: () => app.quit() }
   ]));

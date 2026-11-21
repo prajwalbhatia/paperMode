@@ -29,7 +29,8 @@ test('menu can start during a persistent shortcut conflict; retries recover with
       globalShortcut: { register: (_key, handler) => { registrations++; if (available) callback = handler; return available; } },
       powerMonitor: new EventEmitter() };
     vm.runInNewContext(readFileSync(join(__dirname, '../src/main/index.js'), 'utf8'), {
-      require: id => ({ electron, 'node:path': require('node:path'), './helper': { helperPath: () => 'helper' },
+      require: id => ({ electron, 'node:path': require('node:path'), '../../package.json': require('../package.json'),
+        './updates': { checkForUpdates: async () => null }, './helper': { helperPath: () => 'helper' },
         './guide': { UsageGuide: class { constructor() { guide = this; } async show() {} notifyStartBlocked() { notices++; } } },
         './guide-window': { GuideWindow: class {} },
         './controller': { SessionController: Controller }, './session': { HelperSession: class {} } })[id],
