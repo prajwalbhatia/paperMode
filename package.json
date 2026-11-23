@@ -1,8 +1,8 @@
 {
   "name": "papermode",
   "productName": "PaperMode",
-  "version": "0.1.1",
-  "paperModeReleaseTag": "v0.1.1-preview.1",
+  "version": "0.1.2",
+  "paperModeReleaseTag": "v0.1.2-preview.1",
   "description": "A macOS menu bar utility for watching courses while taking paper notes.",
   "private": true,
   "main": "src/main/index.js",

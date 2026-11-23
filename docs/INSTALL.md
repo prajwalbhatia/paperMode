@@ -8,7 +8,7 @@ Current artifact: Apple Silicon (ARM64) only. Development and owner QA were perf
 
 ## Install the GitHub preview
 
-1. Download `PaperMode-0.1.1-macos-arm64-unnotarized-preview.zip` from the official release's **Assets** section. Optionally download `SHA256SUMS.txt` to compare the archive checksum; a matching checksum checks consistency with the published asset, not independent trust in the publisher.
+1. Download `PaperMode-0.1.2-macos-arm64-unnotarized-preview.zip` from the official release's **Assets** section. Optionally download `SHA256SUMS.txt` to compare the archive checksum; a matching checksum checks consistency with the published asset, not independent trust in the publisher.
 2. Quit an existing PaperMode instance. Keep the previous build until replacement testing passes. Extract the ZIP and drag **PaperMode.app** into **Applications**, replacing the old copy if applicable. Run only one copy.
 3. Open **Applications → PaperMode** once. macOS may say it cannot verify PaperMode is free of malware, or that the developer cannot be verified. Dismiss that warning without moving the app to Trash.
 4. If you trust the official download, open **System Settings → Privacy & Security**, scroll to **Security**, and choose **Open Anyway** beside the PaperMode notice. Confirm opening and authenticate locally if prompted. The notice appears after an attempted launch; wording varies by macOS version. Managed Macs may prohibit this override.
@@ -31,7 +31,9 @@ Bring the intended course to the foreground. Close Help before starting. Press *
 
 Hold **Control + Option + Command + L** together for two seconds to unlock. The reminder displays the shortcut and hold progress; releasing early resets it. Normal packaged sessions have **no automatic timeout**. The `--bounded-locks` option applies only to development runs, not packaged apps. Sleep ends a session and waking does not restart it.
 
-When available, press **Control + Option + Command + Space** once to pause/resume the bound video; release before another press. Experimental support covers compatible YouTube and TPStreams players in Chrome/Safari, with English Accessibility labels and a unique recognized player. Unsupported or changed players can show unavailable. Unlock to control these normally. The action acknowledgement is not confirmation of playback state.
+The keyboard and trackpad lock works over any browser. Play/pause while locked requires a compatible video in Chrome, Safari, or Firefox. When available, press **Control + Option + Command + Space** once to pause/resume the bound video; release before another press. Tested targets include YouTube in all three browsers, TPStreams in Chrome/Safari, Udemy lectures in Firefox, and Vimeo in Firefox. PaperMode can detect other players with a unique Play/Pause control, timeline, and nearby media controls exposed through macOS Accessibility. English labels and a recognizable structure are required; an unsupported or changed player can show unavailable. Unlock to control it normally. The action acknowledgement is not confirmation of playback state.
+
+On a compatible player, press **Control + Option + Command + Left Arrow** to seek back about five seconds or **Right Arrow** to seek forward. Release the arrow before pressing again. Firefox seeking needs a focused player with a usable timed timeline or explicit skip buttons; Chrome/Safari also support compatible course players. PaperMode reports a request, not a confirmed new playback position. If seeking is unavailable, unlock and use the player normally.
 
 ## Remove
 

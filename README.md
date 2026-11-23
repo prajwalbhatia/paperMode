@@ -2,7 +2,7 @@
 
 A macOS menu bar utility for watching courses while taking handwritten notes on a notebook resting over your laptop keyboard.
 
-The Electron menu bar app and native input lock have passed core development-Mac QA. Experimental native play/pause passed owner-confirmed pause/resume/unlock checks on the rebuilt app in Chrome YouTube, Safari YouTube, and Chrome course player. Broader final-artifact acceptance remains before release. See [packaged QA](docs/MILESTONE-5-QA.md), [UX QA](docs/MILESTONE-4-QA.md), [app QA results](docs/MILESTONE-3-QA.md), [native QA results](docs/MILESTONE-2-QA.md), and [PLAN.md](PLAN.md).
+The Electron menu bar app and native input lock have passed core development-Mac QA. Native playback checks passed in Chrome and Safari YouTube, a Chrome course player, Firefox YouTube, and a Firefox Udemy lecture. Broader final-artifact acceptance remains before release. See [packaged QA](docs/MILESTONE-5-QA.md), [UX QA](docs/MILESTONE-4-QA.md), [app QA results](docs/MILESTONE-3-QA.md), [native QA results](docs/MILESTONE-2-QA.md), and [PLAN.md](PLAN.md).
 
 ## Install and use
 
@@ -12,9 +12,10 @@ An Apple Silicon preview is available on GitHub Releases. It is ad-hoc signed an
 | --- | --- |
 | Start (five-second countdown) | Control + Option + Command + P |
 | Play/pause supported course | Control + Option + Command + Space |
+| Skip back / forward about five seconds | Control + Option + Command + Left / Right Arrow |
 | Unlock | Hold Control + Option + Command + L for two seconds |
 
-The screen and video remain visible. On the tested Mac, built-in keyboard, trackpad/pointer, and tested media-key input stayed blocked during sessions, except the deliberate control chords. The filter suppresses recognized media/control events but deliberately passes through power and unknown system events; PaperMode does not prevent every system action. External keyboard/mouse coverage remains unverified. Sleep ends the session; waking does not relock.
+The screen and video remain visible. The input lock works over any browser. The optional playback controls require a compatible player in Chrome, Safari, or Firefox. On the tested Mac, built-in keyboard, trackpad/pointer, and tested media-key input stayed blocked during sessions, except the deliberate control chords. The filter suppresses recognized media/control events but deliberately passes through power and unknown system events; PaperMode does not prevent every system action. External keyboard/mouse coverage remains unverified. Sleep ends the session; waking does not relock.
 
 ## Development
 
@@ -44,13 +45,17 @@ See [docs/SETUP.md](docs/SETUP.md) for build details and troubleshooting.
 
 Packaging automatically verifies the bundle identity, ARM64 binaries, artwork, and current application sources. `check:package` repeats those structural checks without launching or locking. Installation, permission identity, and recovery from the actual packaged app still require the [milestone 5 acceptance sequence](docs/MILESTONE-5-QA.md).
 
-## Play/pause while locked (experimental)
+## Play/pause while locked
 
-Start PaperMode with the intended course selected in the foreground Chrome or Safari window. When the reminder offers it, press **Control + Option + Command + Space** once to request play/pause. Keep the existing two-second L chord for unlocking. Requests never temporarily disable the input filter, and held Space does not repeat toggles.
+Start PaperMode with the intended video selected in the foreground Chrome, Safari, or Firefox window. When the reminder offers it, press **Control + Option + Command + Space** once to request play/pause. Keep the existing two-second L chord for unlocking. Requests never temporarily disable the input filter, and held Space does not repeat toggles.
 
-Supported playback targets are YouTube video pages/embeds and TPStreams embeds used by course player, with English Accessibility labels. PaperMode requires a unique Play/Pause control inside a recognized player container with a seek timeline, and retains that player for the session. Other sites are currently unsupported. Unsupported/ambiguous controls, changed windows/documents/buttons, or another foreground app cause refusal. There is no extension and no global media fallback. “Playback requested” means the browser accepted the action, **not** that playback was confirmed. If the video does not respond, unlock and control it normally; do not blindly repeat a toggle. Replaced controls require starting a new session.
+PaperMode recognizes tested YouTube, TPStreams, and Udemy players and can also detect other players from a unique Play/Pause control, a timeline, and nearby media controls exposed through macOS Accessibility. This general detector passed Firefox tests on Vimeo and an InterviewReady free lesson in windowed and video full-screen modes. English Accessibility labels and a recognizable player structure are required; support is not guaranteed for every site. Ambiguous controls, a different video or window, or another foreground app cause refusal. There is no extension and no global media fallback. “Playback requested” means the browser accepted the action, **not** that playback was confirmed. If the video does not respond, unlock and control it normally; do not blindly repeat a toggle.
 
 Targeted physical checks passed; broader final-artifact acceptance remains before a public release. See [milestone 7 QA](docs/MILESTONE-7-QA.md).
+
+## Seek while locked (in development)
+
+Press **Control + Option + Command + Left Arrow** to request a five-second skip back, or **Right Arrow** to skip forward. Release the arrow before pressing again; holding it does not repeat. Chrome and Safari use the selected player's progress bar on previously tested players. Firefox uses a focused player’s arrow shortcut when a valid timed timeline is available; Udemy uses its own Rewind and Forward buttons. If the player cannot be controlled, unlock to use it normally. The on-screen acknowledgement confirms only that a seek was requested. Owner checks passed in Chrome YouTube, a Chrome course player, Safari YouTube full screen, Firefox YouTube, a Firefox Udemy lecture, and Firefox Vimeo and InterviewReady in video full screen; see [seek QA](docs/SEEK-QA.md) for remaining edge cases.
 
 ## Release and contributions
 
