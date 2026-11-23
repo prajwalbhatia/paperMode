@@ -16,8 +16,10 @@ final class LockSession {
     private var chord = UnlockChord()
     private let playback = PlaybackTarget()
     private var playbackKey = PlaybackPolicy()
+    private var seekChord = SeekChord()
     private var playbackPending = false
     private var playbackHint = "Checking play/pause availability…"
+    private var playbackAvailable = false
     private var playbackBound = false
     private let reminder = Reminder()
     private let parentPID = getppid()
@@ -45,9 +47,11 @@ final class LockSession {
         observeCancellation()
         if !preview {
             playbackBound = true
-            playback.bind { [weak self] available in
+            playback.bind { [weak self] available, reason in
                 guard let self, !self.finishing else { return }
-                self.playbackHint = available ? "Ready · request playback without unlocking" : "Play/pause unavailable · unlock to control"
+                self.playbackAvailable = available
+                self.playbackHint = available ? "Ready · request playback without unlocking" :
+                    (reason ?? "Play/pause unavailable · unlock to control")
                 if self.active { self.reminder.updatePlayback(self.playbackHint) }
             }
         }
@@ -77,9 +81,11 @@ final class LockSession {
         self.preview = preview
         if !preview && !playbackBound {
             playbackBound = true
-            playback.bind { [weak self] available in
+            playback.bind { [weak self] available, reason in
                 guard let self, !self.finishing else { return }
-                self.playbackHint = available ? "Ready · request playback without unlocking" : "Play/pause unavailable · unlock to control"
+                self.playbackAvailable = available
+                self.playbackHint = available ? "Ready · request playback without unlocking" :
+                    (reason ?? "Play/pause unavailable · unlock to control")
                 self.reminder.updatePlayback(self.playbackHint)
             }
         }
@@ -156,6 +162,15 @@ final class LockSession {
             return Unmanaged.passUnretained(event)
         }
         guard active else { return Unmanaged.passUnretained(event) }
+        if (type == .leftMouseDown || type == .leftMouseUp || type == .mouseMoved) &&
+            event.getIntegerValueField(.eventSourceUserData) == SeekClick.marker {
+            return Unmanaged.passUnretained(event)
+        }
+        if (type == .keyDown || type == .keyUp) &&
+            event.getIntegerValueField(.eventSourceUserData) == SeekClick.marker &&
+            [123, 124].contains(event.getIntegerValueField(.keyboardEventKeycode)) {
+            return Unmanaged.passUnretained(event)
+        }
         let flags: CGEventFlags = [.maskControl, .maskAlternate, .maskCommand]
         let modifiers = event.flags.contains(flags)
         if type == .keyDown || type == .keyUp {
@@ -163,7 +178,7 @@ final class LockSession {
                 let request = playbackKey.update(down: type == .keyDown,
                     modifiers: modifiers && !event.flags.contains(.maskShift),
                     repeated: event.getIntegerValueField(.keyboardEventAutorepeat) != 0)
-                if request && !playbackPending {
+                if request && playbackAvailable && !playbackPending {
                     playbackPending = true
                     DispatchQueue.main.async { [weak self] in
                         guard let self, self.active, !self.finishing else { return }
@@ -173,6 +188,21 @@ final class LockSession {
                             self.playbackPending = false
                             self.reminder.updatePlayback(message)
                         }
+                    }
+                }
+            }
+            let seek = seekChord.update(keycode: event.getIntegerValueField(.keyboardEventKeycode),
+                down: type == .keyDown, modifiers: modifiers && !event.flags.contains(.maskShift),
+                repeated: event.getIntegerValueField(.keyboardEventAutorepeat) != 0)
+            if let seek, playbackAvailable && !playbackPending {
+                playbackPending = true
+                DispatchQueue.main.async { [weak self] in
+                    guard let self, self.active, !self.finishing else { return }
+                    self.reminder.updatePlayback("Requesting seek…")
+                    self.playback.seek(direction: seek) { [weak self] message in
+                        guard let self, self.active, !self.finishing else { return }
+                        self.playbackPending = false
+                        self.reminder.updatePlayback(message)
                     }
                 }
             }

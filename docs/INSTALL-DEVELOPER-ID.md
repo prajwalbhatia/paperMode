@@ -19,7 +19,9 @@ Bring the intended video to the foreground and close the guide. Press **Control 
 
 Hold **Control + Option + Command + L** for two seconds to unlock. The reminder shows the shortcut and hold progress. Normal sessions have no automatic timeout. Sleep ends a session and waking does not restart it.
 
-When available, press **Control + Option + Command + Space** once to pause or resume the selected video; release before pressing again. Compatible YouTube and TPStreams players in Chrome and Safari are supported. If PaperMode says playback is unavailable, unlock to control the video normally.
+When available, press **Control + Option + Command + Space** once to pause or resume the selected video; release before pressing again. Tested targets include YouTube players in Chrome, Safari, and Firefox; TPStreams players in Chrome/Safari; and Udemy lectures and Vimeo in Firefox. Other players may work when macOS Accessibility exposes one recognizable player with a timeline and nearby media controls. If PaperMode says playback is unavailable, unlock to control the video normally.
+
+On a compatible player, press **Control + Option + Command + Left Arrow** to seek back about five seconds or **Right Arrow** to seek forward. Release the arrow before pressing again. Firefox seeking requires a focused player with a usable timed timeline or explicit skip buttons. If PaperMode reports seeking unavailable, unlock to control the video normally.
 
 External keyboard and mouse coverage remains unverified. Power and unknown system events are intentionally passed through.
 
