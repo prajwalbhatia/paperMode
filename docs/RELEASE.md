@@ -43,7 +43,7 @@ Complete `LOCAL-RELEASE-CHECKLIST.md`, record final-artifact QA against its chec
 
 ## Unnotarized preview workflow
 
-From a clean committed tree, run `npm run release:preview`. This uses the same archive verification but names the ZIP `PaperMode-<version>-macos-arm64-unnotarized-preview.zip` and bundles `UNNOTARIZED-PREVIEW.txt`. For this preview, the app version is `0.1.2` and the GitHub tag is `v0.1.2-preview.1`. The manifest describes build-time state and does not itself authorize publication.
+From a clean committed tree, run `npm run release:preview`. This uses the same archive verification but names the ZIP `PaperMode-<version>-macos-arm64-unnotarized-preview.zip` and bundles `UNNOTARIZED-PREVIEW.txt`. For this preview, the app version is `0.1.3` and the GitHub tag is `v0.1.3-preview.1`. The manifest describes build-time state and does not itself authorize publication.
 
 Upload the ZIP, SHA256SUMS.txt, manifest.json and INSTALL.md to a **draft prerelease** targeting the exact build commit. Download its asset through a browser while signed into GitHub to exercise quarantine, extraction, per-app Open Anyway, Applications installation and Accessibility permission. CLI downloads alone do not establish this flow. Record checksum and observations before publishing the draft. This existing development Mac cannot establish clean-machine behavior because earlier permissions/approvals may persist.
 
