@@ -1,4 +1,5 @@
 import AppKit
+import QuartzCore
 
 final class Reminder {
     private var panels: [NSPanel] = []
@@ -65,8 +66,8 @@ final class ReminderCard: NSView {
     private let playback = NSTextField(labelWithString: "")
     private let hint = NSTextField(labelWithString: "")
     private let preparation = NSTextField(labelWithString: "")
-    private let progressTrack = NSView()
-    private let progressFill = NSView()
+    private let progressTrack = CAShapeLayer()
+    private let progressFill = CAShapeLayer()
     private let preview: Bool
     private var lastProgress: Double?
 
@@ -103,18 +104,6 @@ final class ReminderCard: NSView {
         hint.font = .systemFont(ofSize: 10)
         hint.textColor = NSColor.white.withAlphaComponent(0.72)
         addSubview(hint)
-        // The unlock hold fills across the card's top edge, leaving the
-        // shortcut rows unobstructed.
-        progressTrack.frame = NSRect(x: 16, y: height - 3, width: width - 32, height: 3)
-        progressTrack.wantsLayer = true
-        progressTrack.layer?.cornerRadius = 1.5
-        progressTrack.layer?.backgroundColor = NSColor.white.withAlphaComponent(0.12).cgColor
-        progressFill.wantsLayer = true
-        progressFill.layer?.cornerRadius = 1.5
-        progressFill.layer?.backgroundColor = accent.cgColor
-        progressTrack.addSubview(progressFill)
-        progressTrack.isHidden = true
-        addSubview(progressTrack)
         preparation.frame = NSRect(x: 16, y: 42, width: width - 32, height: 26)
         preparation.font = .systemFont(ofSize: 18, weight: .semibold)
         preparation.textColor = .white
@@ -126,7 +115,47 @@ final class ReminderCard: NSView {
         playback.stringValue = preview ? "Request playback without unlocking" : "Checking player availability…"
         playback.isHidden = preparingSeconds != nil
         addSubview(playback)
+        // Trace the rounded perimeter from the top centre as the unlock hold
+        // completes. Keep it inside the card so it never covers the lesson.
+        let outline = Self.progressOutline(width: width, height: height)
+        progressTrack.path = outline
+        progressTrack.fillColor = NSColor.clear.cgColor
+        progressTrack.strokeColor = NSColor.white.withAlphaComponent(0.12).cgColor
+        progressTrack.lineWidth = 3
+        progressTrack.isHidden = true
+        progressFill.path = outline
+        progressFill.fillColor = NSColor.clear.cgColor
+        progressFill.strokeColor = accent.cgColor
+        progressFill.lineWidth = 3
+        progressFill.lineCap = .round
+        progressFill.strokeEnd = 0
+        progressFill.isHidden = true
+        layer?.addSublayer(progressTrack)
+        layer?.addSublayer(progressFill)
         if let preparingSeconds { updatePreparation(seconds: preparingSeconds) }
+    }
+
+    private static func progressOutline(width: CGFloat, height: CGFloat) -> CGPath {
+        let inset: CGFloat = 2
+        let radius: CGFloat = 14
+        let left = inset, right = width - inset
+        let bottom = inset, top = height - inset
+        let path = CGMutablePath()
+        path.move(to: CGPoint(x: width / 2, y: top))
+        path.addLine(to: CGPoint(x: right - radius, y: top))
+        path.addArc(center: CGPoint(x: right - radius, y: top - radius), radius: radius,
+                    startAngle: .pi / 2, endAngle: 0, clockwise: true)
+        path.addLine(to: CGPoint(x: right, y: bottom + radius))
+        path.addArc(center: CGPoint(x: right - radius, y: bottom + radius), radius: radius,
+                    startAngle: 0, endAngle: -.pi / 2, clockwise: true)
+        path.addLine(to: CGPoint(x: left + radius, y: bottom))
+        path.addArc(center: CGPoint(x: left + radius, y: bottom + radius), radius: radius,
+                    startAngle: -.pi / 2, endAngle: -.pi, clockwise: true)
+        path.addLine(to: CGPoint(x: left, y: top - radius))
+        path.addArc(center: CGPoint(x: left + radius, y: top - radius), radius: radius,
+                    startAngle: .pi, endAngle: .pi / 2, clockwise: true)
+        path.addLine(to: CGPoint(x: width / 2, y: top))
+        return path
     }
 
     private func keyRow(last: String, y: CGFloat, width: CGFloat, accent: NSColor) {
@@ -161,15 +190,19 @@ final class ReminderCard: NSView {
         guard !preview, progress != lastProgress else { return }
         lastProgress = progress
         progressTrack.isHidden = progress == nil
+        progressFill.isHidden = progress == nil
         if let progress {
             let fraction = min(1, max(0, progress))
             // Round up so the display never says 0.0 seconds before completion.
             let remaining = ceil((1 - fraction) * 2 * 10) / 10
             hint.stringValue = String(format: "%.1f sec left", remaining)
-            progressFill.frame = NSRect(x: 0, y: 0, width: progressTrack.bounds.width * fraction, height: 3)
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            progressFill.strokeEnd = CGFloat(fraction)
+            CATransaction.commit()
         } else {
             hint.stringValue = "Hold 2 seconds"
-            progressFill.frame = .zero
+            progressFill.strokeEnd = 0
         }
     }
 
