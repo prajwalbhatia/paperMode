@@ -87,7 +87,7 @@ final class PlaybackTarget {
         guard let raw = value(root, "AXFocusedWindow"), CFGetTypeID(raw) == AXUIElementGetTypeID(),
               CFEqual(raw, target.window), documentURL(target.document) == target.url else { return false }
         var element = target.document
-        for _ in 0..<12 {
+        for _ in 0..<PlaybackPolicy.maxAccessibilityDepth {
             if CFEqual(element, target.window) { return !queryFailed && now < deadline && !isCancelled }
             guard let parent = value(element, "AXParent"), CFGetTypeID(parent) == AXUIElementGetTypeID() else { return false }
             element = unsafeBitCast(parent, to: AXUIElement.self)
@@ -225,7 +225,8 @@ final class PlaybackTarget {
         var incomplete = false
         func walk(_ element: AXUIElement, _ document: AXUIElement?, _ context: PlayerContext?,
                   _ groups: [AXUIElement], _ depth: Int) {
-            guard !queryFailed, visited < 3000, depth < 50, now < deadline, !isCancelled else { incomplete = true; return }
+            guard !queryFailed, visited < 3000, depth < PlaybackPolicy.maxAccessibilityDepth,
+                  now < deadline, !isCancelled else { incomplete = true; return }
             visited += 1
             let role = string(element, "AXRole")
             let web = role == "AXWebArea" ? element : document
@@ -321,19 +322,39 @@ final class PlaybackTarget {
                               rewind: back, forward: ahead)
             }
         }
-        guard !incomplete, !queryFailed, found.count == 1, let candidate = found.first,
-              let player = candidate.2, player.timelines.count == 1,
+        var selectedControl: Int? = found.count == 1 ? 0 : nil
+        if !incomplete, !queryFailed, found.count == 2,
+           let first = found.first, let player = first.2,
+           player.timelines.count == 1, let timeline = player.timelines.first,
+           PlaybackPolicy.isSupportedPlayerDocument(documentURL(first.1)),
+           found.allSatisfy({ item in
+               CFEqual(item.1, first.1) && item.2.map { CFEqual($0.element, player.element) } == true
+           }) {
+            let timelineParts = generalTimelines.filter {
+                CFEqual($0.document, first.1) && CFEqual($0.element, timeline)
+            }
+            if timelineParts.count == 1, let part = timelineParts.first {
+                selectedControl = PlaybackPolicy.nestedPlayerControlIndex(
+                    candidateGroups: found.map { $0.3 }, timelineGroups: part.groups,
+                    same: { CFEqual($0, $1) })
+            }
+        }
+        guard !incomplete, !queryFailed, let selectedControl, found.indices.contains(selectedControl),
+              let player = found[selectedControl].2, player.timelines.count == 1,
               let timeline = player.timelines.first else {
             diagnostic(["playback": "scan-rejected", "reason": "structure-or-timeout",
                         "playerContainer": found.first?.2 != nil,
                         "timelines": found.first?.2?.timelines.count ?? 0])
             return nil
         }
+        let candidate = found[selectedControl]
         let url = documentURL(candidate.1)
         let supportedDocument = PlaybackPolicy.isSupportedPlayerDocument(url)
         let enabled = (value(candidate.0, "AXEnabled") as? Bool) == true
         let pressable = !requirePress || canActivate(candidate.0)
-        guard PlaybackPolicy.isUniqueMediaControl(count: found.count, supportedDocument: supportedDocument,
+        // The nested selector above resolves a transient outer overlay only
+        // when one inner button uniquely shares the timeline's group path.
+        guard PlaybackPolicy.isUniqueMediaControl(count: 1, supportedDocument: supportedDocument,
             hasContainer: candidate.2 != nil, hasTimeline: true),
               enabled, pressable, !queryFailed, now < deadline else {
             diagnostic(["playback": "scan-rejected", "reason": "player-attributes",

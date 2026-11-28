@@ -1,6 +1,7 @@
 import Foundation
 
 struct PlaybackPolicy {
+    static let maxAccessibilityDepth = 50
     static func isSupportedBrowser(_ bundleID: String?) -> Bool {
         ["com.google.Chrome", "com.apple.Safari", "org.mozilla.firefox"].contains(bundleID ?? "")
     }
@@ -12,6 +13,23 @@ struct PlaybackPolicy {
     }
     static func isUniqueMediaControl(count: Int, supportedDocument: Bool, hasContainer: Bool, hasTimeline: Bool) -> Bool {
         count == 1 && supportedDocument && hasContainer && hasTimeline
+    }
+    /// A video can expose an outer "Play Video" overlay as well as its inner
+    /// Play/Pause control. Select the inner control only when both buttons
+    /// belong to the same player and one sits strictly closer to its timeline.
+    static func nestedPlayerControlIndex<Group>(candidateGroups: [[Group]], timelineGroups: [Group],
+                                                same: (Group, Group) -> Bool) -> Int? {
+        guard candidateGroups.count == 2, !timelineGroups.isEmpty else { return nil }
+        func isPrefix(_ prefix: [Group], of path: [Group]) -> Bool {
+            prefix.count <= path.count && zip(prefix, path).allSatisfy { same($0, $1) }
+        }
+        guard candidateGroups.allSatisfy({ !$0.isEmpty && isPrefix($0, of: timelineGroups) }) else { return nil }
+        let inner = candidateGroups[0].count > candidateGroups[1].count ? 0 : 1
+        let outer = 1 - inner
+        guard candidateGroups[inner].count >= 2,
+              candidateGroups[outer].count < candidateGroups[inner].count,
+              isPrefix(candidateGroups[outer], of: candidateGroups[inner]) else { return nil }
+        return inner
     }
     static func isPlayerContainer(_ name: String) -> Bool {
         ["YouTube Video Player", "YouTube Video Player in Fullscreen",

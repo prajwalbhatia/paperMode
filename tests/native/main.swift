@@ -192,6 +192,21 @@ check(!PlaybackPolicy.isUniqueMediaControl(count: 1, supportedDocument: false, h
 check(!PlaybackPolicy.isUniqueMediaControl(count: 1, supportedDocument: true, hasContainer: false, hasTimeline: true), "page-level timeline cannot qualify an unrelated button")
 check(!PlaybackPolicy.isUniqueMediaControl(count: 2, supportedDocument: true, hasContainer: true, hasTimeline: true), "second player-like control remains ambiguous even if non-actionable or URL-less")
 check(PlaybackPolicy.isUniqueMediaControl(count: 1, supportedDocument: true, hasContainer: true, hasTimeline: true), "unique supported media control has required structural evidence")
+check(PlaybackPolicy.nestedPlayerControlIndex(candidateGroups: [["player"], ["player", "controls"]],
+    timelineGroups: ["player", "controls", "timeline"], same: ==) == 1,
+    "inner Play/Pause control wins over the observed outer Play Video overlay")
+check(PlaybackPolicy.nestedPlayerControlIndex(candidateGroups: [["player", "controls"], ["player"]],
+    timelineGroups: ["player", "controls", "timeline"], same: ==) == 0,
+    "nested control selection does not depend on traversal order")
+check(PlaybackPolicy.nestedPlayerControlIndex(candidateGroups: [["player", "left"], ["player", "right"]],
+    timelineGroups: ["player", "left", "timeline"], same: ==) == nil,
+    "sibling Play controls remain ambiguous")
+check(PlaybackPolicy.nestedPlayerControlIndex(candidateGroups: [["player", "controls"], ["player", "controls"]],
+    timelineGroups: ["player", "controls", "timeline"], same: ==) == nil,
+    "equally nested Play controls remain ambiguous")
+check(PlaybackPolicy.nestedPlayerControlIndex(candidateGroups: [["other"], ["player", "controls"]],
+    timelineGroups: ["player", "controls", "timeline"], same: ==) == nil,
+    "unrelated Play controls are not ignored")
 check(PlaybackPolicy.isGeneralVideoDocument("https://courses.example.org/lesson/one"), "HTTPS course page eligible for structural player detection")
 for url in ["http://courses.example.org/lesson", "https://localhost/lesson", "https://127.0.0.1/lesson", "https://user@courses.example.org/lesson", "https://courses.example.org:8443/lesson", "https://www.youtube.com/", "https://www.udemy.com/"] {
     check(!PlaybackPolicy.isGeneralVideoDocument(url), "reject unsafe generic document: \(url)")
