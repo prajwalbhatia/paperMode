@@ -1,5 +1,7 @@
 # Locked seeking QA
 
+Unlock reminder visual QA: the two-second hold now traces the card's full rounded perimeter instead of only its top edge. The compact 340×154 card was rendered offscreen at 65% progress and visually inspected; the shortcut rows remained clear. Native compilation and the ARM64 package structure check passed. Live hold timing uses the existing unlock chord and has not been physically retested for this cosmetic change.
+
 Chrome course player regression: a synthetic timeline click moved playback but left the video paused, while a normal timeline click and a plain Right Arrow kept it playing. PaperMode now sends a tagged arrow only for the focused video surface of the supported embedded course player, rejecting focus on a volume slider or unrelated control. In the rebuilt local app, the owner confirmed forward and backward seeking moved roughly five seconds and kept playback running. The native and JavaScript suites and ARM64 package check passed.
 
 The native helper, JavaScript tests, and ARM64 package checks pass. The owner confirmed back and forward movement while locked in a Chrome course player and Chrome YouTube. Safari YouTube in full screen also passed seek in both directions, play/pause, and two-second unlock. The first AXValue-only implementation reported success without moving either Chrome video; the bound progress-bar click implementation produced the confirmed movement. Safari initially failed binding because its full-screen player used a different Accessibility label; the rebuilt app passed after that label was added.
