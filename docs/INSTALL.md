@@ -33,7 +33,7 @@ Hold **Control + Option + Command + L** together for two seconds to unlock. The 
 
 The keyboard and trackpad lock works over any browser. Play/pause while locked requires a compatible video in Chrome, Safari, or Firefox. When available, press **Control + Option + Command + Space** once to pause/resume the bound video; release before another press. Tested targets include YouTube in all three browsers, TPStreams in Chrome/Safari, Udemy lectures in Firefox, and Vimeo in Firefox. PaperMode can detect other players with a unique Play/Pause control, timeline, and nearby media controls exposed through macOS Accessibility. English labels and a recognizable structure are required; an unsupported or changed player can show unavailable. Unlock to control it normally. The action acknowledgement is not confirmation of playback state.
 
-On a compatible player, press **Control + Option + Command + Left Arrow** to seek back about five seconds or **Right Arrow** to seek forward. Release the arrow before pressing again. Firefox seeking needs a focused player with a usable timed timeline or explicit skip buttons; Chrome/Safari also support compatible course players. PaperMode reports a request, not a confirmed new playback position. If seeking is unavailable, unlock and use the player normally.
+On a compatible player, press **Control + Option + Command + Left Arrow** to seek back about five seconds or **Right Arrow** to seek forward. Release the arrow before pressing again. Some course players need you to click the video before locking so it has focus. PaperMode reports a request, not a confirmed new playback position. If seeking is unavailable, unlock and use the player normally.
 
 ## Remove
 

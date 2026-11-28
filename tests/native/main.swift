@@ -268,6 +268,13 @@ for url in ["https://example.com/watch?v=abc", "https://www.youtube.com.evil.tes
 }
 check(PlaybackPolicy.isSupportedPlayerDocument("https://www.youtube.com/watch?v=abc"), "YouTube video document supported")
 check(PlaybackPolicy.isSupportedPlayerDocument("https://app.tpstreams.com/embed/account/video/?token=test"), "TPStreams embed document supported")
+check(PlaybackPolicy.isTPStreamsEmbedDocument("https://app.tpstreams.com/embed/account/video/"), "TPStreams embed can use focused video arrows")
+check(!PlaybackPolicy.isTPStreamsEmbedDocument("https://app.tpstreams.com/account/video/"), "TPStreams non-embed cannot use focused arrows")
+check(!PlaybackPolicy.isTPStreamsEmbedDocument("https://app.tpstreams.com.evil.test/embed/video/"), "spoofed TPStreams host cannot use focused arrows")
+check(PlaybackPolicy.isCourseVideoFocus(role: "AXGroup", title: "", description: "", directPlayerChild: true), "direct video surface permits a focused arrow")
+check(!PlaybackPolicy.isCourseVideoFocus(role: "AXSlider", title: "", description: "", directPlayerChild: true), "volume slider cannot receive a seek arrow")
+check(!PlaybackPolicy.isCourseVideoFocus(role: "AXGroup", title: "Settings", description: "", directPlayerChild: true), "named control group cannot receive a seek arrow")
+check(!PlaybackPolicy.isCourseVideoFocus(role: "AXGroup", title: "", description: "", directPlayerChild: false), "unrelated group cannot receive a seek arrow")
 check(PlaybackPolicy.isUdemyLectureDocument("https://www.udemy.com/course/nodejs-express-mongodb-bootcamp/learn/lecture/15064262#overview"), "Udemy lecture document supported")
 check(PlaybackPolicy.isSupportedPlayerDocument("https://www.udemy.com/course/example/learn/lecture/12345"), "Udemy lecture accepted as player document")
 for url in ["https://www.udemy.com/", "https://www.udemy.com/course/example/learn/", "https://www.udemy.com/course/example/learn/quiz/12345", "https://www.udemy.com.evil.test/course/example/learn/lecture/12345", "http://www.udemy.com/course/example/learn/lecture/12345"] {

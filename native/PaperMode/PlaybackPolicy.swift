@@ -104,6 +104,12 @@ struct PlaybackPolicy {
         guard isSupportedPlayerDocument(value), let host = URLComponents(string: value)?.host?.lowercased() else { return false }
         return ["youtube.com", "www.youtube.com", "www.youtube-nocookie.com"].contains(host)
     }
+    static func isTPStreamsEmbedDocument(_ value: String) -> Bool {
+        isSupportedPlayerDocument(value) && URLComponents(string: value)?.host?.lowercased() == "app.tpstreams.com"
+    }
+    static func isCourseVideoFocus(role: String, title: String, description: String, directPlayerChild: Bool) -> Bool {
+        role == "AXGroup" && title.isEmpty && description.isEmpty && directPlayerChild
+    }
     private var spaceDown = false
     mutating func update(down: Bool, modifiers: Bool, repeated: Bool) -> Bool {
         if !down { spaceDown = false; return false }

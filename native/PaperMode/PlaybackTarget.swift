@@ -169,15 +169,27 @@ final class PlaybackTarget {
               !queryFailed, now < deadline, !isCancelled else { return false }
         return safeSeekFocus(target)
     }
-    private func sendFirefoxArrow(_ target: Target, direction: Int) -> Bool {
-        let eligible = PlaybackPolicy.isYouTubePlayerDocument(target.url) ||
-            PlaybackPolicy.isGeneralVideoDocument(target.url)
-        let focused = eligible && focusBoundPlayer(target)
+    private func safeCourseVideoFocus(_ target: Target) -> Bool {
+        let root = AXUIElementCreateApplication(target.pid)
+        guard let raw = value(root, "AXFocusedUIElement"), CFGetTypeID(raw) == AXUIElementGetTypeID() else { return false }
+        let focused = unsafeBitCast(raw, to: AXUIElement.self)
+        if CFEqual(focused, target.player) || CFEqual(focused, target.timeline) { return true }
+        guard let rawParent = value(focused, "AXParent"), CFGetTypeID(rawParent) == AXUIElementGetTypeID() else { return false }
+        return PlaybackPolicy.isCourseVideoFocus(role: string(focused, "AXRole"),
+            title: string(focused, "AXTitle"), description: string(focused, "AXDescription"),
+            directPlayerChild: CFEqual(rawParent, target.player))
+    }
+    private func sendFocusedArrow(_ target: Target, direction: Int) -> Bool {
+        let browser = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        let firefox = browser == "org.mozilla.firefox" &&
+            (PlaybackPolicy.isYouTubePlayerDocument(target.url) || PlaybackPolicy.isGeneralVideoDocument(target.url))
+        let chromeCourse = browser == "com.google.Chrome" && PlaybackPolicy.isTPStreamsEmbedDocument(target.url)
+        let focused = firefox ? focusBoundPlayer(target) : chromeCourse && safeCourseVideoFocus(target)
         let timely = !queryFailed && now < deadline && !isCancelled
         let foreground = NSWorkspace.shared.frontmostApplication?.processIdentifier == target.pid
-        diagnostic(["playback": "firefox-arrow-check", "eligible": eligible,
+        diagnostic(["playback": "focused-arrow-check", "eligible": firefox || chromeCourse,
                     "focused": focused, "timely": timely, "foreground": foreground])
-        guard eligible, focused, timely, foreground,
+        guard (firefox || chromeCourse), focused, timely, foreground,
               let source = CGEventSource(stateID: .privateState) else { return false }
         let keycode = CGKeyCode(direction < 0 ? 123 : 124)
         guard let down = CGEvent(keyboardEventSource: source, virtualKey: keycode, keyDown: true),
@@ -510,15 +522,17 @@ final class PlaybackTarget {
                               minimum: resolved.values.minimum, maximum: resolved.values.maximum,
                               description: resolved.description, url: saved.url, direction: direction),
                           now < expiresAt, !isCancelled {
-                    let firefox = NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "org.mozilla.firefox"
-                    // Firefox seeks with a plain arrow only when the selected
-                    // player has focus. Other browsers use the slider.
-                    let sent = firefox
-                        ? sendFirefoxArrow(current, direction: direction)
+                    let focusedArrow = NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "org.mozilla.firefox" ||
+                        (NSWorkspace.shared.frontmostApplication?.bundleIdentifier == "com.google.Chrome" &&
+                         PlaybackPolicy.isTPStreamsEmbedDocument(saved.url))
+                    // These players seek with a plain arrow only when their
+                    // selected video surface has focus. Other players use the slider.
+                    let sent = focusedArrow
+                        ? sendFocusedArrow(current, direction: direction)
                         : clickTimeline(current.timeline, target: current, current: resolved.values.current, next: next,
                             minimum: resolved.values.minimum, maximum: resolved.values.maximum)
                     message = sent ? "Seek requested · check the video" : "Seek unavailable · unlock to control video"
-                    diagnostic(["playback": "seek", "method": firefox ? "focused-arrow" : "timeline-click",
+                    diagnostic(["playback": "seek", "method": focusedArrow ? "focused-arrow" : "timeline-click",
                                 "result": sent ? "sent" : "failed"])
                 }
             }

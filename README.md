@@ -55,7 +55,7 @@ Targeted physical checks passed; broader final-artifact acceptance remains befor
 
 ## Seek while locked (in development)
 
-Press **Control + Option + Command + Left Arrow** to request a five-second skip back, or **Right Arrow** to skip forward. Release the arrow before pressing again; holding it does not repeat. Chrome and Safari use the selected player's progress bar on previously tested players. Firefox uses a focused player’s arrow shortcut when a valid timed timeline is available; Udemy uses its own Rewind and Forward buttons. If the player cannot be controlled, unlock to use it normally. The on-screen acknowledgement confirms only that a seek was requested. Owner checks passed in Chrome YouTube, a Chrome course player, Safari YouTube full screen, Firefox YouTube, a Firefox Udemy lecture, and Firefox Vimeo and InterviewReady in video full screen; see [seek QA](docs/SEEK-QA.md) for remaining edge cases.
+Press **Control + Option + Command + Left Arrow** to request a five-second skip back, or **Right Arrow** to skip forward. Release the arrow before pressing again; holding it does not repeat. PaperMode uses the selected player's timeline, focused arrow shortcut, or explicit skip buttons according to the player. Some course players need you to click the video before locking so it has focus. If the player cannot be controlled, unlock to use it normally. The on-screen acknowledgement confirms only that a seek was requested. Owner checks passed in Chrome YouTube, a Chrome course player, Safari YouTube full screen, Firefox YouTube, a Firefox Udemy lecture, and Firefox Vimeo and InterviewReady in video full screen; see [seek QA](docs/SEEK-QA.md) for remaining edge cases.
 
 ## Release and contributions
 
